@@ -1,0 +1,48 @@
+/* Design tokens: dark charcoal surfaces, restrained neo-skeuomorphic depth, warm orange accent. */
+:root {
+  color-scheme: dark;
+
+  --bg: #191B1E;
+  --bg-deep: #141619;
+  --surface: #24272B;
+  --raised: #2D3035;
+  --raised-hi: #353940;
+  --inset: #1C1E22;
+  --line: rgba(255, 255, 255, 0.06);
+  --line-strong: rgba(255, 255, 255, 0.12);
+
+  --text: #F5F5F3;
+  --text-2: #B9BEC6;
+  --text-3: #959BA4;
+
+  --accent: #F28C54;
+  --accent-hi: #F7A577;
+  --accent-lo: #E2783E;
+  --accent-ink: #1E1410;
+  --accent-soft: rgba(242, 140, 84, 0.13);
+  --accent-line: rgba(242, 140, 84, 0.45);
+
+  --ok: #74D19E;
+  --warn: #F2C45A;
+  --danger: #F28B8B;
+  --info: #86B9F2;
+
+  --radius-sm: 10px;
+  --radius: 14px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  --shadow-raised: 10px 10px 24px rgba(0, 0, 0, 0.42), -6px -6px 16px rgba(255, 255, 255, 0.022), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-raised-sm: 5px 5px 12px rgba(0, 0, 0, 0.38), -3px -3px 9px rgba(255, 255, 255, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-inset: inset 3px 3px 7px rgba(0, 0, 0, 0.5), inset -2px -2px 6px rgba(255, 255, 255, 0.03);
+  --shadow-pressed: inset 2px 2px 5px rgba(0, 0, 0, 0.55), inset -1px -1px 3px rgba(255, 255, 255, 0.04);
+
+  --font: "Tajawal", "IBM Plex Sans Arabic", "Noto Sans Arabic", "Segoe UI", "Geeza Pro", Tahoma, system-ui, sans-serif;
+  --font-latin: "Tajawal", "Segoe UI", system-ui, sans-serif;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --dur: 180ms;
+
+  --sidebar-w: 272px;
+  --topbar-h: 64px;
+}
