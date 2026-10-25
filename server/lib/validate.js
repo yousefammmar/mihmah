@@ -1,4 +1,5 @@
 // Minimal field validation that collects Arabic messages per field for inline display.
+// Labels come in both grammatical genders, so messages are phrased to need no agreement with the label.
 import { badRequest } from './errors.js';
 
 export function validator(input = {}) {
@@ -11,15 +12,15 @@ export function validator(input = {}) {
     str(name, { min = 0, max = 10000, required = true, label = 'الحقل' } = {}) {
       const v = raw(name);
       if (v == null || v === '') {
-        if (required) fail(name, `${label} مطلوب.`);
+        if (required) fail(name, `يرجى إدخال ${label}.`);
         else out[name] = null;
         return api;
       }
-      if (typeof v !== 'string') { fail(name, `${label} غير صالح.`); return api; }
+      if (typeof v !== 'string') { fail(name, `قيمة ${label} غير صالحة.`); return api; }
       const s = v.trim();
-      if (s.length < min) fail(name, `${label} قصير: ${s.length} من ${min} حرفاً على الأقل.`);
-      else if (s.length > max) fail(name, `${label} طويل: ${max} حرفاً كحد أقصى.`);
-      else if (required && !s) fail(name, `${label} مطلوب.`);
+      if (s.length < min) fail(name, `عدد أحرف ${label} أقل من الحد الأدنى: ${s.length} من ${min}.`);
+      else if (s.length > max) fail(name, `عدد أحرف ${label} يتجاوز الحد الأقصى (${max}).`);
+      else if (required && !s) fail(name, `يرجى إدخال ${label}.`);
       out[name] = s || null;
       return api;
     },
@@ -39,12 +40,12 @@ export function validator(input = {}) {
     int(name, { min, max, required = true, label = 'القيمة' } = {}) {
       const v = raw(name);
       if (v == null || v === '') {
-        if (required) fail(name, `${label} مطلوبة.`);
+        if (required) fail(name, `يرجى إدخال ${label}.`);
         else out[name] = null;
         return api;
       }
       const n = Number(v);
-      if (!Number.isInteger(n) || (min != null && n < min) || (max != null && n > max)) fail(name, `${label} يجب أن تكون رقماً صحيحاً بين ${min} و${max}.`);
+      if (!Number.isInteger(n) || (min != null && n < min) || (max != null && n > max)) fail(name, `يجب أن تكون قيمة ${label} رقماً صحيحاً بين ${min} و${max}.`);
       out[name] = n;
       return api;
     },
@@ -62,16 +63,16 @@ export function validator(input = {}) {
     oneOf(name, values, { label = 'القيمة', required = true } = {}) {
       const v = raw(name);
       if ((v == null || v === '') && !required) { out[name] = null; return api; }
-      if (!values.includes(v)) fail(name, `${label} غير صالحة.`);
+      if (!values.includes(v)) fail(name, `اختر ${label} من الخيارات المتاحة.`);
       out[name] = v;
       return api;
     },
     list(name, { min = 0, max = 20, itemMax = 200, label = 'القائمة', itemCheck } = {}) {
       const v = raw(name);
       const arr = Array.isArray(v) ? v.map((x) => (typeof x === 'string' ? x.trim() : '')).filter(Boolean) : null;
-      if (!arr) { fail(name, `${label} غير صالحة.`); return api; }
-      if (arr.length < min) fail(name, `أضف ${min} عنصراً على الأقل إلى ${label}.`);
-      else if (arr.length > max) fail(name, `${max} عناصر كحد أقصى في ${label}.`);
+      if (!arr) { fail(name, `قيمة ${label} غير صالحة.`); return api; }
+      if (arr.length < min) fail(name, `عدد عناصر ${label} أقل من الحد الأدنى (${min}).`);
+      else if (arr.length > max) fail(name, `عدد عناصر ${label} يتجاوز الحد الأقصى (${max}).`);
       else if (arr.some((x) => x.length > itemMax)) fail(name, `أحد عناصر ${label} طويل جداً.`);
       else if (itemCheck && arr.some((x) => !itemCheck(x))) fail(name, `أحد عناصر ${label} غير صالح.`);
       out[name] = arr;
