@@ -191,10 +191,15 @@ export default function projectRoutes(ctx) {
       requireActive(p);
       if ('title' in body || 'dueDate' in body) {
         if (role !== 'company') throw forbidden('تعدّل الشركة عناوين المراحل ومواعيدها.');
-        const d = validator(body).str('title', { min: 2, max: 120, label: 'عنوان المرحلة' }).done();
+        // Partial update: only the fields that were sent change.
+        const d = 'title' in body ? validator(body).str('title', { min: 2, max: 120, label: 'عنوان المرحلة' }).done() : {};
         const due = body.dueDate;
         if (due != null && due !== '' && !isDateStr(due)) throw badRequest('تاريخ غير صالح.', { dueDate: 'تاريخ غير صالح.' });
-        await client.query(`update milestones set title = $2, due_at = case when $3::text is null then null else ${endOfAmmanDay('$3')} end where id = $1`, [req.params.id, d.title, due || null]);
+        await client.query(
+          `update milestones set title = coalesce($2, title),
+             due_at = case when not $4::boolean then due_at when $3::text is null then null else ${endOfAmmanDay('$3')} end
+           where id = $1`,
+          [req.params.id, d.title ?? null, due || null, 'dueDate' in body]);
       }
       if ('done' in body) {
         await client.query('update milestones set done_at = case when $2 then coalesce(done_at, now()) else null end where id = $1', [req.params.id, body.done === true]);

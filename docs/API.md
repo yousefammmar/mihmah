@@ -136,7 +136,7 @@ A project is visible to its two participants. Admins can also view it, and every
 | GET | `/projects/:id` | participants, admin | Task brief, student, company, milestones, deliverables (with reviews and attachment metadata), payment, reviews, `viewerRole`, and `actions` (what the viewer may do now) |
 | GET | `/projects/:id/activity` | participants, admin | History from audit events (admin-internal actions excluded) |
 | POST | `/projects/:id/milestones` | owner company | `{ title, dueDate? }`. Active projects only, at most 12. |
-| PATCH | `/milestones/:id` | participants | `{ done }` (either side). `{ title, dueDate }` is company only. Active projects only. |
+| PATCH | `/milestones/:id` | participants | `{ done }` (either side). `{ title, dueDate }` is company only; send either or both, omitted fields stay unchanged, `dueDate: null` clears the date. Active projects only. |
 | DELETE | `/milestones/:id` | owner company | Active projects only |
 | GET | `/projects/:id/messages?before=&limit=` | participants, admin | `{ items: [{ id, body, senderRole, createdAt, attachments }], hasMore }` (oldest first) |
 | POST | `/projects/:id/messages` | participants | `{ body (1–4000), attachmentIds?[] }`. Not allowed on cancelled projects. |
