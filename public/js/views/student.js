@@ -193,17 +193,20 @@ export async function discovery() {
 
 // ---------- task detail ----------
 export async function taskDetail({ params }) {
-  const [t, profile] = await Promise.all([api.get(`/tasks/${params.id}`), api.get('/me/profile')]);
+  // Admins (e.g. from the reports queue) and companies get the same page read-only.
+  const isStudent = session.user.role === 'student';
+  const [t, profile] = await Promise.all([api.get(`/tasks/${params.id}`), isStudent ? api.get('/me/profile') : null]);
   const cat = categoryOf(t.category);
-  const mine = skillSet(profile.skills);
+  const mine = skillSet(profile?.skills);
   const app = t.myApplication;
   const isOpen = t.status === 'published' && t.moderationStatus === 'visible';
+  const back = { student: ['#/tasks', 'العودة إلى المهام'], admin: ['#/admin/reports', 'العودة إلى البلاغات'], company: ['#/company/tasks', 'العودة إلى مهامي'] }[session.user.role];
 
   return h('div', { class: 'page' },
-    h('a', { class: 'back-link', href: '#/tasks' }, icon('chevron-right'), 'العودة إلى المهام'),
+    h('a', { class: 'back-link', href: back[0] }, icon('chevron-right'), back[1]),
     pageHeader({
       eyebrow: cat.label, title: t.title, subtitle: companyLine(t),
-      actions: [
+      actions: isStudent && [
         isOpen && saveButton(t),
         isOpen && !app && session.user.emailVerified && h('a', { class: 'btn btn-primary', href: '#apply', onclick: (e) => { e.preventDefault(); document.getElementById('apply-proposal')?.focus(); } }, 'قدّم الآن'),
         h('button', { type: 'button', class: 'btn btn-text', onclick: () => reportDialog('task', t.id) }, icon('alert'), 'إبلاغ'),
@@ -215,9 +218,9 @@ export async function taskDetail({ params }) {
         section('نطاق العمل', h('p', { class: 'prose' }, t.scope), { ico: 'target' }),
         section('المخرجات المطلوبة', h('ul', { class: 'check-list' }, t.deliverables.map((d) => h('li', null, icon('check'), h('span', null, d)))), { ico: 'file' }),
         section('المهارات المطلوبة', [skillChips(t.skills, mine),
-          h('p', { class: 'field-hint' }, `تطابق ${t.skills.filter((s) => mine.has(s.toLowerCase())).length} من ${t.skills.length} مع مهارات ملفك.`)], { ico: 'code' }),
+          isStudent && h('p', { class: 'field-hint' }, `تطابق ${t.skills.filter((s) => mine.has(s.toLowerCase())).length} من ${t.skills.length} مع مهارات ملفك.`)], { ico: 'code' }),
         section('المراحل المقترحة', h('ol', { class: 'milestone-list' }, t.milestones.map((m, i) => h('li', null, h('span', { class: 'ms-num' }, String(i + 1)), h('span', null, m)))), { ico: 'milestones' }),
-        applyBlock(t, app, profile, isOpen)),
+        isStudent && applyBlock(t, app, profile, isOpen)),
       h('aside', { class: 'stack', 'aria-label': 'ملخص المهمة' },
         h('div', { class: 'panel budget-card' },
           h('p', { class: 'budget-label' }, 'الميزانية الثابتة'),

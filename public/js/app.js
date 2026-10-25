@@ -22,7 +22,7 @@ route('/forgot-password', { view: forgotPassword, public: true, guestOnly: true 
 route('/reset-password', { view: resetPassword, public: true });
 route('/student', { view: studentDashboard, role: 'student' });
 route('/tasks', { view: discovery, role: 'student' });
-route('/tasks/:id', { view: taskDetail, role: 'student' });
+route('/tasks/:id', { view: taskDetail, role: 'any' });
 route('/applications', { view: applications, role: 'student' });
 route('/portfolio', { view: portfolio, role: 'student' });
 route('/students/:id', { view: portfolio, role: 'any' });
