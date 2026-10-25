@@ -99,9 +99,11 @@ export function createApp(ctx) {
   if (config.demoMode) app.use('/api/demo', demoRoutes(ctx));
   app.use('/api', (req, res, next) => next(notFound('المسار غير موجود.')));
 
-  // Development mail outbox viewer.
+  // Development mail outbox viewer. It holds live verify/reset links, so only this machine may read it.
+  // The socket address is checked (not req.ip) so X-Forwarded-For cannot spoof it.
   if (!config.isProd && ctx.mailer.list) {
-    app.get('/dev/mail', async (req, res) => {
+    app.get('/dev/mail', async (req, res, next) => {
+      if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress)) return next();
       const mails = await ctx.mailer.list();
       const items = mails.map((m) => {
         const links = [...String(m.text).matchAll(/https?:\/\/\S+/g)].map((x) => `<a href="${escapeHtml(x[0])}">${escapeHtml(x[0])}</a>`).join('<br>');
