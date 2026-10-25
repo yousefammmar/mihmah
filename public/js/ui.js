@@ -1,6 +1,7 @@
 // Shared UI pieces: toasts, dialogs, form validation and small presentational components.
 import { h, bdi, initials } from './dom.js';
 import { icon } from './icons.js';
+import { ApiError } from './api.js';
 
 // ---------- toasts ----------
 export function toast(message, kind = 'success') {
@@ -11,8 +12,12 @@ export function toast(message, kind = 'success') {
   setTimeout(() => el.remove(), kind === 'error' ? 6000 : 4000);
 }
 
+// Server and network failures arrive as ApiError with an Arabic message. Anything else is a code bug:
+// users get a plain message and the technical details go to the console.
 export function reportError(err) {
-  toast(err?.message || 'حدث خطأ غير متوقع.', 'error');
+  if (err instanceof ApiError) return toast(err.message, 'error');
+  console.error(err);
+  toast('حدث خطأ غير متوقع. حاول مرة أخرى.', 'error');
 }
 
 // Shows server-side field errors next to their inputs, or a toast for other errors.

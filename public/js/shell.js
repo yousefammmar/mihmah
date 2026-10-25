@@ -130,11 +130,12 @@ export function appShell(path, content) {
     icon('info'), h('span', null, 'أكّد بريدك الإلكتروني لتتمكن من التقديم على المهام أو نشرها وإرسال العروض.'),
     h('button', {
       type: 'button', class: 'btn btn-text btn-sm', onclick: async (e) => {
+        const btn = e.currentTarget; // currentTarget is null once the handler awaits
+        btn.disabled = true;
         try {
           await api.post('/auth/resend-verification');
           toast('أرسلنا رابط تأكيد جديداً إلى بريدك.', 'info');
-          e.currentTarget.disabled = true;
-        } catch (err) { reportError(err); }
+        } catch (err) { btn.disabled = false; reportError(err); }
       },
     }, 'إعادة إرسال الرابط'));
   const main = h('main', { id: 'main', class: 'main', tabindex: '-1' }, banner, content);
