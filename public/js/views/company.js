@@ -296,8 +296,10 @@ export async function publishWizard({ params }) {
     for (let s = 0; s < 3; s++) {
       if (Object.keys(validateStep(s, wizard.data)).length) { toast(`يرجى إكمال خطوة «${STEPS[s]}».`, 'error'); go(s); return; }
     }
+    // Saving edits to an already-published task also sends publish=true; only a first publish is announced as one.
+    const firstPublish = publish && wizard.status !== 'published';
     try {
-      await busy(btn, publish ? 'جارٍ النشر…' : 'جارٍ الحفظ…', async () => {
+      await busy(btn, firstPublish ? 'جارٍ النشر…' : 'جارٍ الحفظ…', async () => {
         const body = toPayload(wizard.data, publish);
         let id = wizard.taskId;
         if (id) {
@@ -309,7 +311,7 @@ export async function publishWizard({ params }) {
         const wasEditing = !!wizard.taskId;
         wizard = null;
         clearDraft();
-        toast(publish ? 'نُشرت المهمة وتظهر الآن للطلاب في صفحة الاستكشاف.' : wasEditing ? 'حُفظت التعديلات.' : 'حُفظت المهمة كمسودة. لا يراها أحد غيرك.');
+        toast(firstPublish ? 'نُشرت المهمة وتظهر الآن للطلاب في صفحة الاستكشاف.' : wasEditing ? 'حُفظت التعديلات.' : 'حُفظت المهمة كمسودة. لا يراها أحد غيرك.');
         navigate(publish ? `/company/tasks/${id}` : '/company/tasks?status=draft');
       });
     } catch (err) {
