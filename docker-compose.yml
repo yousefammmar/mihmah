@@ -1,0 +1,72 @@
+# Local services for development (optional — `npm run dev` works without Docker using embedded PostgreSQL).
+# Not executed in the original development environment (Docker was unavailable); verify before relying on it.
+#
+#   docker compose up -d db mail storage storage-init
+#   DATABASE_URL=postgres://mihmah:mihmah-local-dev@localhost:5432/mihmah_dev npm run dev
+#
+# Mail UI: http://localhost:8025   MinIO console: http://localhost:9001
+# For local S3 testing set: STORAGE_DRIVER=s3 S3_ENDPOINT=http://localhost:9000 S3_BUCKET=mihmah-private
+#   S3_ACCESS_KEY_ID=mihmah-local S3_SECRET_ACCESS_KEY=mihmah-local-secret S3_FORCE_PATH_STYLE=true
+# For local SMTP testing set: MAIL_PROVIDER=smtp SMTP_HOST=localhost SMTP_PORT=1025
+# Pin image versions (or digests) for anything beyond local development.
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: mihmah
+      POSTGRES_PASSWORD: mihmah-local-dev
+      POSTGRES_DB: mihmah_dev
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports: ["5432:5432"]
+    volumes: ["db-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mihmah -d mihmah_dev"]
+      interval: 5s
+      retries: 10
+
+  mail:
+    image: axllent/mailpit
+    ports: ["1025:1025", "8025:8025"]
+
+  storage:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: mihmah-local
+      MINIO_ROOT_PASSWORD: mihmah-local-secret
+    ports: ["9000:9000", "9001:9001"]
+    volumes: ["storage-data:/data"]
+
+  storage-init:
+    image: minio/mc
+    depends_on: [storage]
+    entrypoint: >
+      /bin/sh -c "sleep 3; mc alias set local http://storage:9000 mihmah-local mihmah-local-secret &&
+      mc mb --ignore-existing local/mihmah-private && mc anonymous set none local/mihmah-private"
+
+  app:
+    build: .
+    profiles: ["app"]
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      APP_URL: http://localhost:3000
+      DATABASE_URL: postgres://mihmah:mihmah-local-dev@db:5432/mihmah_dev
+      MAIL_PROVIDER: smtp
+      SMTP_HOST: mail
+      SMTP_PORT: 1025
+      STORAGE_DRIVER: s3
+      S3_ENDPOINT: http://storage:9000
+      S3_BUCKET: mihmah-private
+      S3_ACCESS_KEY_ID: mihmah-local
+      S3_SECRET_ACCESS_KEY: mihmah-local-secret
+      S3_FORCE_PATH_STYLE: "true"
+      PAYMENTS_PROVIDER: sandbox
+    ports: ["3000:3000"]
+
+volumes:
+  db-data:
+  storage-data:

@@ -1,0 +1,26 @@
+{
+  "name": "mihmah",
+  "version": "0.2.0",
+  "private": true,
+  "description": "مهمّة | Mihmah — Jordanian marketplace connecting university students with short, paid digital projects",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "node --env-file-if-exists=.env scripts/dev.js",
+    "start": "node --env-file-if-exists=.env server/index.js",
+    "migrate": "node --env-file-if-exists=.env server/db/migrate.js",
+    "seed:dev": "node --env-file-if-exists=.env server/db/seed-dev.js",
+    "admin:create": "node --env-file-if-exists=.env scripts/create-admin.js",
+    "test": "node --test --test-concurrency=1 \"test/*.test.js\""
+  },
+  "dependencies": {
+    "express": "5.3.0",
+    "nodemailer": "10.0.16",
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "embedded-postgres": "17.10.0-beta.17"
+  }
+}
