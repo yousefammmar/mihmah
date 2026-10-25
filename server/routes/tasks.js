@@ -18,7 +18,7 @@ const TASK_COLUMNS = `
   t.deadline_at as "deadlineAt", t.status, t.cancel_reason as "cancelReason", t.moderation_status as "moderationStatus",
   t.published_at as "publishedAt", t.created_at as "createdAt",
   cp.company_name as "companyName", cp.city as "companyCity", cp.industry as "companyIndustry", cp.bio as "companyBio",
-  (cp.verification_status = 'verified') as "companyVerified", cu.is_demo as "isDemo",
+  (cp.verification_status = 'verified') as "companyVerified", cu.is_demo as "isDemo", (cu.status = 'active') as "companyActive",
   coalesce((select array_agg(s.name order by s.name) from task_skills ts join skills s on s.id = ts.skill_id where ts.task_id = t.id), '{}') as skills`;
 
 function readTask(body) {
@@ -52,6 +52,9 @@ export default function taskRoutes(ctx) {
     if (!t) throw notFound('المهمة غير موجودة.');
     return t;
   }
+
+  const companyActive = async (client, companyId) =>
+    (await client.query("select status = 'active' as ok from users where id = $1", [companyId])).rows[0]?.ok === true;
 
   async function writeSkills(client, taskId, names) {
     const ids = await upsertSkills(client, [...new Map(names.map((s) => [s.toLowerCase(), s])).values()]);
@@ -115,7 +118,8 @@ export default function taskRoutes(ctx) {
            from applications a left join offers o on o.application_id = a.id left join projects p on p.offer_id = o.id
           where a.task_id = $1 and a.student_id = $2`, [task.id, req.user.id])
       : null;
-    const isPublic = task.status === 'published' && task.moderationStatus === 'visible';
+    // A suspended company's tasks stop being public, exactly like discovery hides them.
+    const isPublic = task.status === 'published' && task.moderationStatus === 'visible' && task.companyActive;
     if (!isOwner && req.user.role !== 'admin' && !isPublic && !myApp) throw notFound('المهمة غير موجودة.');
     const counts = await db.one(
       `select count(*)::int as applicants, count(*) filter (where status = 'submitted')::int as submitted from applications where task_id = $1`, [task.id]);
@@ -242,7 +246,7 @@ export default function taskRoutes(ctx) {
         .done();
       const app = await db.tx(async (client, after) => {
         const t = await loadTask(req.params.id, client, true);
-        if (t.status !== 'published' || t.moderation_status !== 'visible') throw conflict('task_closed', 'هذه المهمة لم تعد تستقبل طلبات.');
+        if (t.status !== 'published' || t.moderation_status !== 'visible' || !(await companyActive(client, t.company_id))) throw conflict('task_closed', 'هذه المهمة لم تعد تستقبل طلبات.');
         if (new Date(t.deadline_at) <= new Date()) throw conflict('task_closed', 'انتهى موعد هذه المهمة.');
         if (d.deliveryDays > t.duration_days) throw badRequest('المدة أطول من مدة المهمة.', { deliveryDays: `بحد أقصى ${t.duration_days} يوماً حسب مدة المهمة.` });
         const dup = (await client.query('select 1 from applications where task_id = $1 and student_id = $2', [t.id, req.user.id])).rows[0];
@@ -359,6 +363,7 @@ export default function taskRoutes(ctx) {
         if (o.status === 'pending' && new Date(o.expires_at) <= new Date()) throw conflict('offer_expired', 'انتهت صلاحية هذا العرض.');
         if (o.status !== 'pending') throw conflict('invalid_transition', 'هذا العرض لم يعد متاحاً.');
         if (t.status !== 'published') throw conflict('task_taken', 'تم إسناد هذه المهمة لطالب آخر أو لم تعد متاحة.');
+        if (!(await companyActive(client, t.company_id))) throw conflict('task_closed', 'هذه المهمة لم تعد متاحة: حساب الشركة موقوف.');
 
         await client.query("update offers set status = 'accepted', responded_at = now() where id = $1", [o.id]);
         await client.query("update tasks set status = 'assigned', assigned_at = now(), updated_at = now() where id = $1", [t.id]);
