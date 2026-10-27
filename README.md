@@ -4,7 +4,9 @@
 
 # مهمّة · Mihmah
 
-**خبرتك تبدأ بمهمّة.** Your experience starts with a task.
+<p dir="rtl"><strong>خبرتك تبدأ بمهمّة</strong></p>
+
+<em>Your experience starts with a task.</em>
 
 A marketplace that connects Jordanian university students with small businesses for short, paid, clearly scoped digital projects.
 
@@ -37,7 +39,7 @@ Small businesses need small digital jobs done: a menu redesign, a landing page, 
 | :---: | :---: |
 | <img src="docs/screenshots/landing-dark.png" alt="Landing page in dark mode" width="420"> | <img src="docs/screenshots/discover-light.png" alt="Task discovery with filters in light mode" width="420"> |
 | **Project workspace (dark)** | **Sign-up on a phone (light)** |
-| <img src="docs/screenshots/workspace-dark.png" alt="Project workspace with milestones, payment status and messages" width="420"> | <img src="docs/screenshots/signup-mobile-light.png" alt="Sign-up page on a phone in light mode" width="200"> |
+| <img src="docs/screenshots/workspace-dark.png" alt="Project workspace with milestones, payment status and messages" width="420"> | <img src="docs/screenshots/signup-mobile-light.png" alt="Sign-up page on a phone in light mode" width="160"> |
 
 <sub>Screenshots use the fictional development data that ships with the repo.</sub>
 
