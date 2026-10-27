@@ -23,7 +23,7 @@ export function parseSkills(text) {
 }
 
 export function skillsField(name, value, label, hint) {
-  const ctrl = input({ name, value: value.join('، '), dir: 'auto', placeholder: 'مثال: Figma، HTML، Excel', autocomplete: 'off' });
+  const ctrl = input({ name, value: value.join('، '), dir: 'auto', placeholder: 'مثال: Figma، HTML، React', autocomplete: 'off' });
   const preview = h('div', { class: 'skills-preview', 'aria-live': 'polite' });
   const chips = [];
   const suggestion = (s) => {

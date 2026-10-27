@@ -2,7 +2,14 @@
 
 Newest first. Each entry names its commit, so `git show <sha>` gives the full change.
 
-## 2026-10-28 — Every university in Jordan
+## 2026-10-27 — More design, tools and front-end skills; no Excel
+
+- **Skill suggestions (students and task forms):** up from 65 to 107, each in one group only.
+  - Design is now split into basics (Canva, color theory, typography, social posts) and professional work (Figma, Illustrator, InDesign, brand guidelines, UI/UX, wireframes, prototyping, design systems).
+  - New groups for design and team tools (FigJam, Miro, Framer, Webflow, Notion, Jira) and front-end (TypeScript, React, Next.js, Vue, Tailwind CSS, Sass, responsive design, accessibility).
+  - Excel is no longer suggested anywhere. Profiles and tasks that already list it keep it, and anyone can still type it.
+
+## 2026-10-27 — Every university in Jordan
 
 - **University suggestions on student profiles:** up from 10 to 42 entries.
   - All 10 public, 18 private, 2 special-law and 1 regional university, plus the University of Jordan's Aqaba branch and the accredited university colleges.

@@ -9,7 +9,7 @@ export const CATEGORIES = [
 export const categoryOf = (id) => CATEGORIES.find((c) => c.id === id) || CATEGORIES[0];
 
 // Accredited universities and university colleges in Jordan (Ministry of Higher Education categories), checked on
-// 2026-10-28 against the Arabic Wikipedia list and an accreditation directory. Suggestions only: students can type any name.
+// 2026-10-27 against the Arabic Wikipedia list and an accreditation directory. Suggestions only: students can type any name.
 export const UNIVERSITIES = [
   // Public universities (10)
   'الجامعة الأردنية', 'جامعة العلوم والتكنولوجيا الأردنية', 'جامعة اليرموك', 'الجامعة الهاشمية',
@@ -39,18 +39,22 @@ export const INDUSTRIES = [
 // Quick picks shown under every skills field; the full grouped list opens behind "more skills".
 // Tools keep their English names; general skills are in Arabic. Matching ignores case, so keep one spelling per skill.
 export const SKILL_SUGGESTIONS = [
-  'Figma', 'Canva', 'Adobe Illustrator', 'Photoshop', 'Copywriting', 'HTML', 'CSS', 'JavaScript',
-  'WordPress', 'Excel', 'Python', 'SQL', 'Power BI', 'Google Sheets', 'PowerPoint', 'Google Slides',
+  'Figma', 'Canva', 'Adobe Illustrator', 'Photoshop', 'تصميم واجهات (UI)', 'HTML', 'CSS', 'JavaScript',
+  'React', 'WordPress', 'Python', 'SQL', 'Power BI', 'Google Sheets', 'PowerPoint', 'Copywriting',
 ];
 
+// Design runs from basics to professional work, then the tools around it. Each skill appears in one group only.
 export const SKILL_GROUPS = [
-  ['التصميم', ['Figma', 'Canva', 'Adobe Illustrator', 'Photoshop', 'Adobe InDesign', 'Adobe XD', 'تصميم شعارات', 'هوية بصرية', 'تصميم واجهات (UI)', 'تجربة المستخدم (UX)', 'تصميم منشورات سوشال ميديا', 'رسم رقمي']],
+  ['أساسيات التصميم', ['Canva', 'Adobe Express', 'تصميم منشورات سوشال ميديا', 'تصميم شعارات', 'تصميم مطبوعات', 'نظرية الألوان', 'الخطوط والطباعة (Typography)', 'تعديل الصور', 'رسم رقمي']],
+  ['التصميم الاحترافي', ['Figma', 'Adobe Illustrator', 'Photoshop', 'Adobe InDesign', 'Adobe XD', 'Lightroom', 'Affinity Designer', 'Procreate', 'هوية بصرية', 'دليل الهوية (Brand Guidelines)', 'تصميم واجهات (UI)', 'تجربة المستخدم (UX)', 'بحث المستخدمين', 'مخططات أولية (Wireframes)', 'نماذج تفاعلية (Prototyping)', 'أنظمة التصميم (Design Systems)', 'تصميم أيقونات', 'تصميم تغليف']],
+  ['أدوات التصميم والتعاون', ['FigJam', 'Miro', 'Framer', 'Webflow', 'Spline', 'Notion', 'Trello', 'Jira', 'Slack', 'Google Workspace']],
+  ['الواجهات الأمامية (Front-end)', ['HTML', 'CSS', 'JavaScript', 'TypeScript', 'React', 'Next.js', 'Vue.js', 'Angular', 'Tailwind CSS', 'Bootstrap', 'Sass', 'تصميم متجاوب (Responsive)', 'إمكانية الوصول (Accessibility)', 'Vite', 'REST APIs']],
+  ['الويب والتطبيقات', ['WordPress', 'Shopify', 'Wix', 'PHP', 'Laravel', 'Node.js', 'Python', 'Django', 'Firebase', 'Flutter', 'React Native', 'Git', 'GitHub', 'VS Code']],
   ['الفيديو والصوت', ['Premiere Pro', 'After Effects', 'CapCut', 'DaVinci Resolve', 'مونتاج فيديو', 'موشن جرافيك', 'تصوير فوتوغرافي', 'تعليق صوتي']],
   ['التسويق والمحتوى', ['Copywriting', 'كتابة محتوى', 'إدارة حسابات التواصل', 'SEO', 'Google Ads', 'Meta Ads', 'TikTok', 'Instagram', 'التسويق بالبريد', 'Mailchimp']],
   ['الكتابة واللغات', ['ترجمة عربي-إنجليزي', 'تدقيق لغوي', 'كتابة تقنية', 'تفريغ صوتي', 'Microsoft Word']],
-  ['الويب والتطبيقات', ['HTML', 'CSS', 'JavaScript', 'React', 'WordPress', 'Shopify', 'Wix', 'PHP', 'Node.js', 'Flutter', 'Python', 'Git']],
-  ['البيانات', ['Excel', 'Google Sheets', 'Power BI', 'SQL', 'Tableau', 'تحليل بيانات', 'إدخال بيانات']],
-  ['الأعمال والعروض', ['PowerPoint', 'Google Slides', 'Notion', 'بحث سوق', 'خدمة العملاء', 'محاسبة', 'QuickBooks']],
+  ['البيانات', ['Google Sheets', 'Power BI', 'SQL', 'Tableau', 'Looker Studio', 'تحليل بيانات', 'إدخال بيانات']],
+  ['الأعمال والعروض', ['PowerPoint', 'Google Slides', 'Keynote', 'بحث سوق', 'خدمة العملاء', 'محاسبة', 'QuickBooks']],
   ['التصميم الهندسي و3D', ['AutoCAD', 'SketchUp', 'Blender', 'نمذجة ثلاثية الأبعاد']],
 ];
 
