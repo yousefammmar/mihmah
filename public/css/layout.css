@@ -3,7 +3,7 @@
 .brand:hover { color: var(--text); }
 .brand-mark {
   display: grid; place-items: center; width: 40px; height: 40px; border-radius: 13px;
-  color: var(--accent); background: linear-gradient(145deg, #32353B, #232629);
+  color: var(--accent); background: var(--grad-brand);
   border: 1px solid var(--line); box-shadow: var(--shadow-raised-sm);
 }
 .brand-mark .icon { width: 26px; height: 26px; stroke-width: 2; }
@@ -16,9 +16,9 @@
   position: fixed; z-index: 60; inset-block: 0; inset-inline-start: 0;
   display: flex; flex-direction: column; gap: 20px;
   width: min(86vw, var(--sidebar-w)); padding: 16px;
-  background: linear-gradient(180deg, #212428, #1C1E22);
+  background: var(--grad-sidebar);
   border-inline-end: 1px solid var(--line);
-  box-shadow: -12px 0 32px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-sidebar);
   overflow-y: auto;
   transform: translateX(105%);
   visibility: hidden;
@@ -33,24 +33,24 @@
   border: 1px solid transparent;
   transition: background var(--dur), color var(--dur), box-shadow var(--dur);
 }
-.nav-link:hover { color: var(--text); background: rgba(255, 255, 255, 0.03); }
-.nav-link[aria-current="page"] { color: var(--text); background: var(--inset); box-shadow: var(--shadow-inset); border-color: rgba(0, 0, 0, 0.3); }
+.nav-link:hover { color: var(--text); background: var(--hover); }
+.nav-link[aria-current="page"] { color: var(--text); background: var(--inset); box-shadow: var(--shadow-inset); border-color: var(--well-border); }
 .nav-link[aria-current="page"] .icon { color: var(--accent); }
 .nav-count { margin-inline-start: auto; min-width: 24px; padding: 0 7px; border-radius: var(--radius-pill); background: var(--accent); color: var(--accent-ink); font-size: 0.78rem; text-align: center; font-family: var(--font-latin); }
 .sidebar-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding-top: 16px; border-top: 1px solid var(--line); }
-.user-card { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: var(--radius); background: rgba(0, 0, 0, 0.18); }
+.user-card { display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: var(--radius); background: var(--tint); }
 .user-meta { display: flex; flex-direction: column; min-width: 0; }
 .user-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .user-role { font-size: 0.8rem; color: var(--accent-hi); }
 
-.scrim { position: fixed; inset: 0; z-index: 55; background: rgba(8, 9, 11, 0.6); opacity: 0; pointer-events: none; transition: opacity 200ms; }
+.scrim { position: fixed; inset: 0; z-index: 55; background: var(--scrim); opacity: 0; pointer-events: none; transition: opacity 200ms; }
 .shell[data-nav-open] .scrim { opacity: 1; pointer-events: auto; }
 
 .shell-body { min-width: 0; }
 .topbar {
   position: sticky; top: 0; z-index: 40;
   display: flex; align-items: center; gap: 12px; min-height: var(--topbar-h); padding: 10px 16px;
-  background: rgba(25, 27, 30, 0.86); backdrop-filter: blur(12px);
+  background: var(--topbar-bg); backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
 .topbar-brand { flex: 1; }
@@ -102,13 +102,13 @@
 /* ---------- public pages ---------- */
 .pub { min-height: 100vh; display: flex; flex-direction: column; }
 .pub-main { flex: 1; }
-.pub-header { position: sticky; top: 0; z-index: 50; background: rgba(25, 27, 30, 0.86); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+.pub-header { position: sticky; top: 0; z-index: 50; background: var(--topbar-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
 .pub-bar { display: flex; align-items: center; gap: 16px; min-height: 72px; flex-wrap: wrap; }
 .pub-bar .brand { margin-inline-end: auto; }
 .pub-nav { display: flex; align-items: center; gap: 20px; }
 .pub-links { display: none; gap: 4px; }
 .pub-links a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; color: var(--text-2); font-weight: 500; text-decoration: none; }
-.pub-links a:hover { color: var(--text); background: rgba(255, 255, 255, 0.04); }
+.pub-links a:hover { color: var(--text); background: var(--hover); }
 .pub-menu { order: 2; }
 @media (max-width: 899px) {
   .pub-header[data-open] .pub-links { display: flex; flex-direction: column; width: 100%; order: 3; padding-bottom: 12px; }
@@ -117,6 +117,11 @@
 @media (min-width: 900px) {
   .pub-menu { display: none; }
   .pub-links { display: flex; }
+}
+/* Phones: logo + one action + theme button fit on one row. The landing page keeps its auth buttons in the menu. */
+@media (max-width: 599px) {
+  .pub-header.is-landing:not([data-open]) .pub-nav { display: none; }
+  .pub-header:not(.is-landing) .pub-optional { display: none; }
 }
 
 .pub-footer { margin-top: 80px; padding: 40px 0 24px; border-top: 1px solid var(--line); background: var(--bg-deep); }

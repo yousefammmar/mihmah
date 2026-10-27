@@ -40,6 +40,30 @@ const NAV = {
 export const ROLE_LABEL = { student: 'طالب', company: 'شركة', admin: 'مسؤول المنصة' };
 export const HOME = { student: '/student', company: '/company', admin: '/admin' };
 
+// Runs fn now and on every theme change while el stays on the page (the listener drops itself after el is removed).
+export function onThemeChange(el, fn) {
+  let mounted = false;
+  const run = () => {
+    if (mounted && !el.isConnected) return window.removeEventListener('themechange', run);
+    fn();
+  };
+  window.addEventListener('themechange', run);
+  run();
+  queueMicrotask(() => { mounted = true; });
+}
+
+// Sun/moon button that flips between light and dark. Settings also offers "follow the device".
+export function themeToggle() {
+  const btn = h('button', { type: 'button', class: 'icon-btn theme-toggle' });
+  const isLight = () => document.documentElement.dataset.theme === 'light';
+  btn.addEventListener('click', () => window.mihmahTheme?.set(isLight() ? 'dark' : 'light'));
+  onThemeChange(btn, () => {
+    btn.replaceChildren(icon(isLight() ? 'moon' : 'sun'));
+    btn.setAttribute('aria-label', isLight() ? 'التبديل إلى الوضع الداكن' : 'التبديل إلى الوضع الفاتح');
+  });
+  return btn;
+}
+
 export function brand(href = '#/') {
   return h('a', { class: 'brand', href, 'aria-label': 'مهمّة — الصفحة الرئيسية' },
     h('span', { class: 'brand-mark' }, icon('logo')),
@@ -123,6 +147,7 @@ export function appShell(path, content) {
     session.demoMode
       ? h('p', { class: 'demo-pill' }, icon('shield'), h('span', null, h('strong', null, 'بيئة تجريبية'), h('span', { class: 'demo-pill-extra' }, ' · بيانات خيالية منفصلة عن الحسابات الحقيقية')))
       : h('p', { class: 'demo-pill' }, icon('user'), h('span', null, ROLE_LABEL[r], h('span', { class: 'demo-pill-extra' }, ` · ${user.email}`))),
+    themeToggle(),
     h('a', { href: '#/notifications', class: 'icon-btn bell', 'aria-label': 'الإشعارات' },
       icon('bell'), h('span', { class: 'bell-dot', 'data-unread': true, hidden: true, 'aria-hidden': 'true' }, '0')));
   const scrim = h('div', { class: 'scrim', onclick: () => setOpen(false) });
@@ -166,7 +191,9 @@ export function publicShell(content, { landing = false } = {}) {
   const navList = landing && h('ul', { class: 'pub-links' },
     links.map(([id, label]) => h('li', null, h('a', { href: `#${id}`, onclick: scrollTo(id) }, label))));
   const user = session.user;
-  const header = h('header', { class: 'pub-header' },
+  // No button for the page you're on. On phones the header keeps a single auth button (see layout.css).
+  const here = location.hash.split('?')[0] || '#/';
+  const header = h('header', { class: landing ? 'pub-header is-landing' : 'pub-header' },
     h('div', { class: 'container pub-bar' },
       brand(),
       landing && h('button', {
@@ -176,7 +203,9 @@ export function publicShell(content, { landing = false } = {}) {
       h('nav', { class: 'pub-nav', 'aria-label': 'روابط الصفحة' }, navList,
         user
           ? h('a', { class: 'btn btn-primary btn-sm', href: `#${HOME[user.role]}` }, 'لوحة التحكم')
-          : [h('a', { class: 'btn btn-text btn-sm', href: '#/login' }, 'تسجيل الدخول'), h('a', { class: 'btn btn-secondary btn-sm', href: '#/register' }, 'إنشاء حساب')])));
+          : [here !== '#/login' && h('a', { class: 'btn btn-text btn-sm', href: '#/login' }, 'تسجيل الدخول'),
+            here !== '#/register' && h('a', { class: `btn btn-secondary btn-sm${here !== '#/login' ? ' pub-optional' : ''}`, href: '#/register' }, 'إنشاء حساب')]),
+      themeToggle()));
   return h('div', { class: 'pub' }, skipLink(), header,
     h('main', { id: 'main', class: 'pub-main', tabindex: '-1' }, content),
     footer());

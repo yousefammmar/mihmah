@@ -46,6 +46,7 @@ Status as of 2026-10-27. Each ✅ was checked by the automated tests (`npm test`
 - ✅ Free deployment: Render + Neon + Backblaze B2 + Brevo, from the GitHub `main` branch via `render.yaml`. Production-mode boot rehearsed locally with the exact settings before going live.
 - ✅ Live checks: `/readyz` ready (db, smtp, s3, payments off), http → https redirect, CSP/HSTS/nosniff headers, `/dev/mail` and demo logins return 404.
 - ✅ SMTP proven live: Brevo delivered verification emails from Render over port 2525.
+- ✅ Light mode with system/light/dark choice, 65 grouped skill suggestions, and sign-up page fixes (error focus order, clear account-type selection, one-row header on phones).
 - ⚠️ S3 storage is connected but no real upload or download has been run on the live site yet. Also check that downloads keep the original file name (B2 support for the forced-filename parameter is unconfirmed).
 
 ## Before real users sign up

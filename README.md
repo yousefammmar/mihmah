@@ -108,6 +108,10 @@ Then open http://localhost:3000.
 **Time**
 - Stored in UTC and shown in Asia/Amman. Deadlines mean the end of the chosen day in Amman.
 
+**Appearance**
+- Dark and light themes. The site follows the device setting by default, and visitors can switch with the sun/moon button or choose in Settings → المظهر.
+- Every text color meets WCAG AA contrast in both themes.
+
 ## Deployment
 
 The live site runs entirely on free plans, with no credit card:

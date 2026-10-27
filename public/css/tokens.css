@@ -1,4 +1,5 @@
-/* Design tokens: dark charcoal surfaces, restrained neo-skeuomorphic depth, warm orange accent. */
+/* Design tokens: dark charcoal surfaces, restrained neo-skeuomorphic depth, warm orange accent.
+   The light theme (bottom) overrides colors only; js/theme.js sets data-theme before first paint. */
 :root {
   color-scheme: dark;
 
@@ -37,6 +38,43 @@
   --shadow-inset: inset 3px 3px 7px rgba(0, 0, 0, 0.5), inset -2px -2px 6px rgba(255, 255, 255, 0.03);
   --shadow-pressed: inset 2px 2px 5px rgba(0, 0, 0, 0.55), inset -1px -1px 3px rgba(255, 255, 255, 0.04);
 
+  /* Surfaces and effects that differ between themes */
+  --glow-accent: rgba(242, 140, 84, 0.07);
+  --glow-soft: rgba(255, 255, 255, 0.025);
+  --edge: rgba(255, 255, 255, 0.045);
+  --tint: rgba(0, 0, 0, 0.16);
+  --grad-card: linear-gradient(160deg, #2B2E33 0%, #25282C 100%);
+  --grad-panel: linear-gradient(165deg, #272A2F 0%, var(--surface) 100%);
+  --grad-dialog: linear-gradient(165deg, #2B2E33, #24272B);
+  --grad-brand: linear-gradient(145deg, #32353B, #232629);
+  --grad-sidebar: linear-gradient(180deg, #212428, #1C1E22);
+  --grad-btn: linear-gradient(170deg, #34373D, #2A2D32);
+  --grad-btn-hover: linear-gradient(170deg, #393D44, #2E3136);
+  --grad-icon-btn: linear-gradient(160deg, #2E3136, #26292D);
+  --grad-danger: linear-gradient(180deg, #5A2C2C, #482222);
+  --grad-msg-mine: linear-gradient(170deg, #4A3427, #3A2B22);
+  --ghost-bg: rgba(255, 255, 255, 0.02);
+  --topbar-bg: rgba(25, 27, 30, 0.86);
+  --toast-bg: #30343A;
+  --chip-border: rgba(0, 0, 0, 0.2);
+  --field-border: rgba(0, 0, 0, 0.35);
+  --placeholder: #7D838C;
+  --star-off: #4A4E55;
+  --danger-ink: #FFD3D3;
+  --danger-ink-hover: #FFFFFF;
+  --on-orange: #1E1410; /* text on the light-orange primary button, in both themes */
+  --scrim: rgba(8, 9, 11, 0.6);
+  --backdrop: rgba(10, 11, 13, 0.72);
+  --shadow-sidebar: -12px 0 32px rgba(0, 0, 0, 0.35);
+  --shadow-pop: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --shadow-dialog: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --hover: rgba(255, 255, 255, 0.03);
+  --well-border: rgba(0, 0, 0, 0.3);
+  --grad-raised: linear-gradient(160deg, #2C2F34, #25282C);
+  --grad-avatar: linear-gradient(150deg, #383B41, #2A2D31);
+  --ghost-ink: rgba(255, 255, 255, 0.06);
+  --on-danger: #2A1414;
+
   --font: "Tajawal", "IBM Plex Sans Arabic", "Noto Sans Arabic", "Segoe UI", "Geeza Pro", Tahoma, system-ui, sans-serif;
   --font-latin: "Tajawal", "Segoe UI", system-ui, sans-serif;
 
@@ -45,4 +83,74 @@
 
   --sidebar-w: 272px;
   --topbar-h: 64px;
+}
+
+/* Light theme: same structure, colors re-tuned. Every text color meets WCAG AA (4.5:1) on bg, surface, card and inset. */
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --bg: #EDEFF2;
+  --bg-deep: #E3E6EA;
+  --surface: #F7F8FA;
+  --raised: #FBFBFC;
+  --raised-hi: #FFFFFF;
+  --inset: #E6E9ED;
+  --line: rgba(22, 27, 34, 0.08);
+  --line-strong: rgba(22, 27, 34, 0.15);
+
+  --text: #16191D;
+  --text-2: #434A54;
+  --text-3: #5D646F;
+
+  --accent: #A3470F;
+  --accent-hi: #8E3E10;
+  --accent-lo: #C55A1E;
+  --accent-ink: #FFFFFF;
+  --accent-soft: rgba(163, 71, 15, 0.09);
+  --accent-line: rgba(163, 71, 15, 0.35);
+
+  --ok: #126A40;
+  --warn: #875600;
+  --danger: #B42318;
+  --info: #1C5DA3;
+
+  --shadow-raised: 10px 10px 24px rgba(28, 36, 48, 0.1), -6px -6px 16px rgba(255, 255, 255, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-raised-sm: 5px 5px 12px rgba(28, 36, 48, 0.09), -3px -3px 9px rgba(255, 255, 255, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --shadow-inset: inset 3px 3px 7px rgba(28, 36, 48, 0.12), inset -2px -2px 6px rgba(255, 255, 255, 0.85);
+  --shadow-pressed: inset 2px 2px 5px rgba(28, 36, 48, 0.14), inset -1px -1px 3px rgba(255, 255, 255, 0.8);
+
+  --glow-accent: rgba(242, 140, 84, 0.1);
+  --glow-soft: rgba(255, 255, 255, 0.6);
+  --edge: rgba(22, 27, 34, 0.07);
+  --tint: rgba(22, 27, 34, 0.035);
+  --grad-card: linear-gradient(160deg, #FFFFFF 0%, #F6F7F9 100%);
+  --grad-panel: linear-gradient(165deg, #FFFFFF 0%, var(--surface) 100%);
+  --grad-dialog: linear-gradient(165deg, #FFFFFF, #F6F7F9);
+  --grad-brand: linear-gradient(145deg, #FFFFFF, #E9ECF0);
+  --grad-sidebar: linear-gradient(180deg, #F7F8FA, #EEF0F3);
+  --grad-btn: linear-gradient(170deg, #FFFFFF, #F1F3F6);
+  --grad-btn-hover: linear-gradient(170deg, #FFFFFF, #E9ECF0);
+  --grad-icon-btn: linear-gradient(160deg, #FFFFFF, #F1F3F6);
+  --grad-danger: linear-gradient(180deg, #FDECEC, #F9DCDC);
+  --grad-msg-mine: linear-gradient(170deg, #FDEEE4, #F9E0D0);
+  --ghost-bg: rgba(255, 255, 255, 0.5);
+  --topbar-bg: rgba(237, 239, 242, 0.86);
+  --toast-bg: #FFFFFF;
+  --chip-border: rgba(22, 27, 34, 0.08);
+  --field-border: rgba(22, 27, 34, 0.16);
+  --placeholder: #6B727C;
+  --star-off: #C5CAD1;
+  --danger-ink: #8E1F1F;
+  --danger-ink-hover: #6E1414;
+  --scrim: rgba(22, 27, 34, 0.35);
+  --backdrop: rgba(22, 27, 34, 0.4);
+  --shadow-sidebar: -12px 0 32px rgba(28, 36, 48, 0.12);
+  --shadow-pop: 0 16px 40px rgba(28, 36, 48, 0.16);
+  --shadow-dialog: 0 30px 80px rgba(28, 36, 48, 0.22), inset 0 1px 0 #FFFFFF;
+  --hover: rgba(22, 27, 34, 0.045);
+  --well-border: rgba(22, 27, 34, 0.14);
+  --grad-raised: linear-gradient(160deg, #FFFFFF, #F4F5F7);
+  --grad-avatar: linear-gradient(150deg, #FFFFFF, #E6E9ED);
+  --ghost-ink: rgba(22, 27, 34, 0.07);
+  --on-danger: #FFFFFF;
 }

@@ -21,9 +21,22 @@ export const INDUSTRIES = [
   'مخابز وأغذية', 'كتب وثقافة', 'خدمات مهنية', 'سياحة وضيافة', 'تقنية', 'أخرى',
 ];
 
+// Quick picks shown under every skills field; the full grouped list opens behind "more skills".
+// Tools keep their English names; general skills are in Arabic. Matching ignores case, so keep one spelling per skill.
 export const SKILL_SUGGESTIONS = [
   'Figma', 'Canva', 'Adobe Illustrator', 'Photoshop', 'Copywriting', 'HTML', 'CSS', 'JavaScript',
   'WordPress', 'Excel', 'Python', 'SQL', 'Power BI', 'Google Sheets', 'PowerPoint', 'Google Slides',
+];
+
+export const SKILL_GROUPS = [
+  ['التصميم', ['Figma', 'Canva', 'Adobe Illustrator', 'Photoshop', 'Adobe InDesign', 'Adobe XD', 'تصميم شعارات', 'هوية بصرية', 'تصميم واجهات (UI)', 'تجربة المستخدم (UX)', 'تصميم منشورات سوشال ميديا', 'رسم رقمي']],
+  ['الفيديو والصوت', ['Premiere Pro', 'After Effects', 'CapCut', 'DaVinci Resolve', 'مونتاج فيديو', 'موشن جرافيك', 'تصوير فوتوغرافي', 'تعليق صوتي']],
+  ['التسويق والمحتوى', ['Copywriting', 'كتابة محتوى', 'إدارة حسابات التواصل', 'SEO', 'Google Ads', 'Meta Ads', 'TikTok', 'Instagram', 'التسويق بالبريد', 'Mailchimp']],
+  ['الكتابة واللغات', ['ترجمة عربي-إنجليزي', 'تدقيق لغوي', 'كتابة تقنية', 'تفريغ صوتي', 'Microsoft Word']],
+  ['الويب والتطبيقات', ['HTML', 'CSS', 'JavaScript', 'React', 'WordPress', 'Shopify', 'Wix', 'PHP', 'Node.js', 'Flutter', 'Python', 'Git']],
+  ['البيانات', ['Excel', 'Google Sheets', 'Power BI', 'SQL', 'Tableau', 'تحليل بيانات', 'إدخال بيانات']],
+  ['الأعمال والعروض', ['PowerPoint', 'Google Slides', 'Notion', 'بحث سوق', 'خدمة العملاء', 'محاسبة', 'QuickBooks']],
+  ['التصميم الهندسي و3D', ['AutoCAD', 'SketchUp', 'Blender', 'نمذجة ثلاثية الأبعاد']],
 ];
 
 export const TASK_STATUS = {

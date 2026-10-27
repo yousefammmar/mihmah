@@ -2,6 +2,24 @@
 
 Newest first. Each entry names its commit, so `git show <sha>` gives the full change.
 
+## 2026-10-27 — Light mode, more skills, sign-up fixes
+
+- **Light mode:**
+  - Every color in the stylesheets is now a token in `public/css/tokens.css`. A `:root[data-theme="light"]` block re-tunes those tokens, so the dark design is unchanged.
+  - Every text color meets WCAG AA (4.5:1) on all light surfaces. The orange accent and the status colors are deeper in light mode for that reason.
+  - `public/js/theme.js` runs in `<head>` before the first paint, so there's no flash of the wrong theme. It follows the device setting by default and remembers a manual choice per browser.
+  - There's a sun/moon button in both headers, and Settings → **المظهر** has تلقائي / فاتح / داكن. The two stay in sync.
+  - The printable completion summary stays white paper in both themes.
+- **More skills:**
+  - The 16 popular suggestions stay visible. "مهارات أخرى حسب المجال" opens 65 skills grouped into 8 fields (design, video, marketing, writing, web, data, business, 3D).
+  - Skills already added are hidden from the suggestions.
+  - Tools keep their English names and general skills are in Arabic, one spelling each, so matching stays exact.
+- **Sign-up page:**
+  - **Error focus:** with errors, the form now focuses the first invalid field *on the page*. It used to jump past the company-name field to the one below it. The fix is in the shared `showErrors`, so every form benefits, including errors returned by the server.
+  - **Account type:** the selected type now has an orange outline and a check mark, instead of only a faint pressed look.
+  - **Name error:** now says what to write ("اكتب اسمك الكامل." / "اكتب اسم الشخص المسؤول.").
+  - **Phone header:** the public header no longer wraps onto two rows on phones (73px instead of 105–165px). The button for the page you're on is hidden, phones keep a single auth button, and the landing page moves them into its menu.
+
 ## 2026-10-27 — Verification links that keep working
 
 - **Verification links failed on the live site** with "الرابط غير صالح أو انتهت صلاحيته" (`8394626`). There were two causes:

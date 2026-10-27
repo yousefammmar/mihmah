@@ -124,7 +124,6 @@ export function select(props, options, placeholder) {
 export function showErrors(form, errors) {
   form.querySelectorAll('.field-error').forEach((p) => { p.hidden = true; p.textContent = ''; });
   form.querySelectorAll('[aria-invalid]').forEach((c) => c.removeAttribute('aria-invalid'));
-  let first = null;
   for (const [name, msg] of Object.entries(errors)) {
     if (!msg) continue;
     const ctrl = form.querySelector(`[name="${name}"]`);
@@ -132,8 +131,9 @@ export function showErrors(form, errors) {
     ctrl.setAttribute('aria-invalid', 'true');
     const err = document.getElementById(`${ctrl.id}-err`);
     if (err) { err.textContent = msg; err.hidden = false; }
-    first ||= ctrl;
   }
+  // Focus the first invalid field as it appears on the page, whatever order the errors arrived in.
+  const first = form.querySelector('[aria-invalid="true"]');
   if (first) {
     first.focus();
     toast('يرجى تصحيح الحقول المشار إليها.', 'error');

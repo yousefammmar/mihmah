@@ -100,7 +100,8 @@ export function register({ query }) {
   };
   const roleCard = (value, ico, label, desc) => h('label', { class: 'role-card' },
     h('input', { type: 'radio', name: 'role', value, checked: role === value, onchange: () => { role = value; sync(); } }),
-    h('span', { class: 'role-card-body' }, h('span', { class: 'entry-icon' }, icon(ico)), h('strong', null, label), h('span', { class: 'muted small' }, desc)));
+    h('span', { class: 'role-card-body' }, h('span', { class: 'role-check', 'aria-hidden': 'true' }, icon('check')),
+      h('span', { class: 'entry-icon' }, icon(ico)), h('strong', null, label), h('span', { class: 'muted small' }, desc)));
   const submit = h('button', { type: 'submit', class: 'btn btn-primary btn-lg btn-block' }, 'إنشاء الحساب');
   const form = h('form', { class: 'stack', novalidate: true },
     err,
@@ -123,7 +124,7 @@ export function register({ query }) {
       companyName: role === 'company' ? form.companyName.value.trim() : undefined,
     };
     const errors = {};
-    if (body.name.length < 2) errors.name = 'هذا الحقل مطلوب.';
+    if (body.name.length < 2) errors.name = role === 'company' ? 'اكتب اسم الشخص المسؤول.' : 'اكتب اسمك الكامل.';
     if (role === 'company' && (body.companyName || '').length < 2) errors.companyName = 'اكتب اسم الشركة أو المشروع.';
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(body.email)) errors.email = 'أدخل بريداً إلكترونياً صحيحاً.';
     if (body.password.length < 10) errors.password = 'كلمة المرور يجب أن تكون 10 أحرف على الأقل.';

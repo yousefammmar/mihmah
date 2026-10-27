@@ -1,7 +1,7 @@
 // Settings (profile, password, sessions, notification preferences, company verification) and notifications.
 import { h, bdi, fmtDateTime, fmtRelative, isUrl } from '../dom.js';
 import { icon } from '../icons.js';
-import { UNIVERSITIES, CITIES, INDUSTRIES, SKILL_SUGGESTIONS } from '../data.js';
+import { UNIVERSITIES, CITIES, INDUSTRIES, SKILL_SUGGESTIONS, SKILL_GROUPS } from '../data.js';
 import {
   pageHeader, section, emptyState, toast, confirmDialog, note, field, input, textarea, select, showErrors, serverErrors,
   liveClear, busy, reportError, skillChips, pager, badge,
@@ -9,7 +9,7 @@ import {
 import { api, session, applySession } from '../api.js';
 import { navigate, refresh } from '../router.js';
 import { notificationRow } from './common.js';
-import { ROLE_LABEL } from '../shell.js';
+import { ROLE_LABEL, onThemeChange } from '../shell.js';
 
 // ---------- skills input (shared with the task editor) ----------
 export function parseSkills(text) {
@@ -25,21 +25,35 @@ export function parseSkills(text) {
 export function skillsField(name, value, label, hint) {
   const ctrl = input({ name, value: value.join('، '), dir: 'auto', placeholder: 'مثال: Figma، HTML، Excel', autocomplete: 'off' });
   const preview = h('div', { class: 'skills-preview', 'aria-live': 'polite' });
-  const paint = () => {
-    const list = parseSkills(ctrl.value);
-    preview.replaceChildren(list.length ? skillChips(list) : h('span', { class: 'field-hint' }, 'لم تُضف مهارات بعد.'));
-  };
-  ctrl.addEventListener('input', paint);
-  const suggestions = h('div', { class: 'suggest', role: 'group', 'aria-label': 'اقتراحات مهارات' },
-    SKILL_SUGGESTIONS.map((s) => h('button', {
-      type: 'button', class: 'chip chip-btn',
+  const chips = [];
+  const suggestion = (s) => {
+    const btn = h('button', {
+      type: 'button', class: 'chip chip-btn', 'data-skill': s.toLowerCase(),
       onclick: () => {
         const list = parseSkills(ctrl.value);
         if (!list.some((x) => x.toLowerCase() === s.toLowerCase())) list.push(s);
         ctrl.value = parseSkills(list.join(',')).join('، ');
         ctrl.dispatchEvent(new Event('input', { bubbles: true }));
       },
-    }, icon('plus'), bdi(s))));
+    }, icon('plus'), bdi(s));
+    chips.push(btn);
+    return btn;
+  };
+  const paint = () => {
+    const list = parseSkills(ctrl.value);
+    preview.replaceChildren(list.length ? skillChips(list) : h('span', { class: 'field-hint' }, 'لم تُضف مهارات بعد.'));
+    const chosen = new Set(list.map((x) => x.toLowerCase()));
+    for (const c of chips) c.hidden = chosen.has(c.dataset.skill); // already added: no need to suggest it
+  };
+  ctrl.addEventListener('input', paint);
+  const total = new Set(SKILL_GROUPS.flatMap(([, list]) => list.map((s) => s.toLowerCase()))).size;
+  const suggestions = h('div', { class: 'stack-sm' },
+    h('div', { class: 'suggest', role: 'group', 'aria-label': 'مهارات شائعة' }, SKILL_SUGGESTIONS.map(suggestion)),
+    h('details', { class: 'suggest-more' },
+      h('summary', null, icon('plus'), `مهارات أخرى حسب المجال (${total})`),
+      SKILL_GROUPS.map(([group, list]) => h('div', { class: 'suggest-group' },
+        h('p', { class: 'suggest-label' }, group),
+        h('div', { class: 'suggest', role: 'group', 'aria-label': group }, list.map(suggestion))))));
   paint();
   return field(label, h('div', { class: 'skills-input' }, ctrl, preview, suggestions), { hint });
 }
@@ -191,6 +205,21 @@ async function prefsPanel() {
   return section('إشعارات البريد', form, { ico: 'bell' });
 }
 
+function appearancePanel() {
+  const opts = [['system', 'monitor', 'تلقائي'], ['light', 'sun', 'فاتح'], ['dark', 'moon', 'داكن']];
+  const group = h('div', { class: 'rating-opts', role: 'radiogroup', 'aria-label': 'مظهر المنصة' },
+    opts.map(([value, ico, label]) => h('label', { class: 'rate-opt' },
+      h('input', { type: 'radio', name: 'theme', value, onchange: () => window.mihmahTheme?.set(value) }),
+      h('span', null, icon(ico), label))));
+  // Stays in step with the header button.
+  onThemeChange(group, () => {
+    const pref = window.mihmahTheme?.get() || 'system';
+    for (const input of group.querySelectorAll('input')) input.checked = input.value === pref;
+  });
+  return section('المظهر', h('div', { class: 'stack-sm' },
+    h('p', { class: 'muted small' }, '«تلقائي» يتبع إعداد جهازك. يُحفظ اختيارك في هذا المتصفح.'), group), { ico: 'sun' });
+}
+
 export async function settings() {
   const user = session.user;
   const profile = await api.get('/me/profile');
@@ -211,7 +240,7 @@ export async function settings() {
             },
           }, 'إعادة إرسال رابط التأكيد'),
           session.mailPreview && note(`بيئة تطوير: الرسائل محفوظة محلياً في ${session.mailPreview}`, 'info')), { ico: 'inbox' }),
-        prefs, passwordPanel(), sessions)));
+        appearancePanel(), prefs, passwordPanel(), sessions)));
 }
 
 // ---------- notifications ----------
