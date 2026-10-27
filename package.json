@@ -2,6 +2,7 @@
   "name": "mihmah",
   "version": "0.2.0",
   "private": true,
+  "license": "UNLICENSED",
   "description": "مهمّة | Mihmah — Jordanian marketplace connecting university students with short, paid digital projects",
   "type": "module",
   "engines": {

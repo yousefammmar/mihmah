@@ -12,6 +12,7 @@ A marketplace that connects Jordanian university students with small businesses 
 
 [**Live site**](https://mihmah.onrender.com) · [API reference](docs/API.md) · [Deployment guide](docs/DEPLOY-FREE.md) · [Changelog](CHANGELOG.md)
 
+[![CI](https://github.com/yousefammmar/mihmah/actions/workflows/ci.yml/badge.svg)](https://github.com/yousefammmar/mihmah/actions/workflows/ci.yml)
 ![Node.js 22+](https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js&logoColor=white)
 ![Express 5](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white)
@@ -214,6 +215,10 @@ Progress is tracked in [PROGRESS.md](PROGRESS.md), and every change is listed in
 | [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Production configuration, backups and restore, release steps, go-live checklist |
 | [PAYMENTS-RESEARCH.md](PAYMENTS-RESEARCH.md) | Payment providers in Jordan, evaluated from official documentation |
 | [RESEARCH.md](RESEARCH.md) | UX research behind the interface |
+
+## License
+
+Copyright © 2026 Yousef Odeh. All rights reserved. The source is public for reference only; see [LICENSE](LICENSE).
 
 ---
 
