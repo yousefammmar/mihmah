@@ -1,166 +1,221 @@
-# مهمّة | Mihmah
+<div align="center">
 
-**خبرتك تبدأ بمهمّة.** Mihmah connects Jordanian university students with businesses that need short, paid digital projects.
+<img src="public/assets/favicon.svg" width="72" height="72" alt="Mihmah logo">
 
-The workflow:
-1. A company publishes a task.
-2. Students apply.
-3. The company sends an offer.
-4. The student accepts, and a project starts.
-5. Both sides collaborate through messages, files and milestones.
-6. The student submits work.
-7. The company approves it or asks for revisions.
-8. Completed work appears in the student's portfolio.
+# مهمّة · Mihmah
 
-This repository is an operational MVP with three roles (student, company, admin).
+**خبرتك تبدأ بمهمّة.** Your experience starts with a task.
+
+A marketplace that connects Jordanian university students with small businesses for short, paid, clearly scoped digital projects.
+
+[**Live site**](https://mihmah.onrender.com) · [API reference](docs/API.md) · [Deployment guide](docs/DEPLOY-FREE.md) · [Changelog](CHANGELOG.md)
+
+![Node.js 22+](https://img.shields.io/badge/Node.js-22%2B-339933?logo=node.js&logoColor=white)
+![Express 5](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white)
+![Arabic RTL](https://img.shields.io/badge/UI-Arabic%20RTL-F28C54)
+![Light and dark](https://img.shields.io/badge/themes-light%20%2B%20dark-24272B)
+
+</div>
+
+---
+
+## Overview
+
+Small businesses need small digital jobs done: a menu redesign, a landing page, a spreadsheet dashboard. Students need real work for their portfolios. Mihmah brings the two together around fixed budgets, clear deliverables and a shared workspace. It covers the whole engagement from the first posting to the final review:
+
+1. A company publishes a task with a scope, deliverables, milestones, a budget and a deadline.
+2. Students discover it, check how their skills match, and apply.
+3. The company reviews applicants and sends an offer. The first acceptance wins, enforced in the database.
+4. A project workspace opens with messages, private files and milestones.
+5. The student delivers, the company approves or asks for revisions, and leaves a rating.
+6. The finished project joins the student's portfolio.
+
+## Screenshots
+
+| Landing page (dark) | Task discovery (light) |
+| :---: | :---: |
+| <img src="docs/screenshots/landing-dark.png" alt="Landing page in dark mode" width="420"> | <img src="docs/screenshots/discover-light.png" alt="Task discovery with filters in light mode" width="420"> |
+| **Project workspace (dark)** | **Sign-up on a phone (light)** |
+| <img src="docs/screenshots/workspace-dark.png" alt="Project workspace with milestones, payment status and messages" width="420"> | <img src="docs/screenshots/signup-mobile-light.png" alt="Sign-up page on a phone in light mode" width="200"> |
+
+<sub>Screenshots use the fictional development data that ships with the repo.</sub>
+
+## Features
+
+**Students**
+- Profile with university, major, bio, skills (65 grouped suggestions) and a portfolio link.
+- Task discovery with Arabic-normalised search, combined filters, sorting, pagination and saved tasks.
+- Applications, offers and project tracking, with notifications in the app and by email.
+- Portfolio and a printable completion summary for every finished project.
+
+**Companies**
+- Company profile with a verification request reviewed by an admin.
+- Four-step task editor with server-side drafts.
+- Applicant review with skill matching, offers, rejections and withdrawals.
+- Milestones, deliverable review, revision requests with required feedback, and approval with a rating.
+
+**Administrators**
+- Company verification, a reports queue, task moderation, and user suspension with a recorded reason.
+- Dispute inspection and cancellation, an audit log, and payment records with a sandbox event simulator.
+
+**Platform**
+- Live updates over server-sent events for messages, offers and notifications.
+- Private file attachments with type and size checks, content sniffing and short-lived, user-bound links.
+- Light and dark themes. They follow the device setting and switch with one click. Every light-theme text color meets WCAG AA contrast (4.5:1).
+- Responsive, mobile-first Arabic RTL interface built from a token-based design system.
+- Times stored in UTC and shown in Asia/Amman. Deadlines mean the end of the chosen day in Amman.
+
+## Tech stack
 
 | Layer | Technology |
 | --- | --- |
-| Frontend | HTML5, CSS3, vanilla JS (ES modules, no framework or build step), Arabic RTL, the established dark tactile design |
-| Backend | Node.js 22+ and Express 5 |
-| Database | PostgreSQL (UTF8), plain-SQL migrations |
-| Files | Private object storage (S3-compatible) with a local development adapter |
-| Email | SMTP provider, with a development outbox |
-| Payments | Provider interface plus a sandbox. **No live money movement.** |
+| Frontend | HTML, CSS and vanilla JavaScript ES modules. No framework, no build step. |
+| Backend | Node.js 22+, Express 5 |
+| Database | PostgreSQL, accessed with parameterised SQL through `pg` and versioned with plain-SQL migrations |
+| Files | S3-compatible object storage (signed requests, no SDK), with a local adapter for development |
+| Email | SMTP through `nodemailer`, with a local outbox for development |
+| Tests | `node:test` against throwaway, real PostgreSQL clusters |
 
-**Live site:** https://mihmah.onrender.com. It runs on free plans, so after 15 minutes without visitors the first request takes about a minute while the server wakes up. See [Deployment](#deployment).
+The app has only three runtime dependencies: `express`, `pg` and `nodemailer`.
 
-## Quick start (no Docker needed)
+## Architecture
+
+```mermaid
+flowchart LR
+  B["Browser<br/>vanilla JS SPA · Arabic RTL"] -- "HTTPS (REST + SSE)" --> E["Express 5<br/>API + static files"]
+  E --> P[("PostgreSQL<br/>data · sessions · audit")]
+  E --> S[("S3-compatible storage<br/>private attachments")]
+  E --> M["SMTP provider<br/>verification · reset · notifications"]
+```
+
+The server holds all state: sessions, notifications and project activity live in PostgreSQL. Live updates are signals only, and the browser refetches through the API, so every response goes through the same access checks.
+
+## Getting started
+
+**Requirements:** Node.js 22 or newer. You don't need to install a database or Docker: the development script starts a real PostgreSQL from a dev dependency.
 
 ```bash
-npm install
+git clone https://github.com/yousefammmar/mihmah.git
+```
+
+```bash
+cd mihmah && npm install
 ```
 
 ```bash
 npm run dev
 ```
 
-Then open http://localhost:3000.
+Then open http://localhost:3000. On first run the script creates the database, applies migrations and loads **fictional** sample data.
 
-- With no `DATABASE_URL`, `npm run dev` starts a real PostgreSQL from the `embedded-postgres` dev dependency in `.data/pg`.
-- It applies migrations and seeds **fictional** demo data on first run.
-- Copy `.env.example` to `.env` to change ports or turn features on. For example, `DEMO_MODE=true` shows one-click demo logins on the login page.
-- Docker users can run Postgres, a mail catcher and MinIO with `docker-compose.yml` instead.
-
-**Seeded accounts** (development and demo only; password `mihmah-demo-2026`, or `SEED_PASSWORD`):
-
-| Role | Email |
+| Role | Sample account (development only) |
 | --- | --- |
-| Student | `lian@student.example.com` (also omar, sara, yazan) |
-| Company | `cafe@company.example.com` (also zaytouna, noon, darb, taboon, smile) |
+| Student | `lian@student.example.com` (also `omar`, `sara`, `yazan`) |
+| Company | `cafe@company.example.com` (also `zaytouna`, `noon`, `darb`, `taboon`, `smile`) |
 | Admin | `admin@mihmah.example.com` |
 
-**Emails** in development are written to `storage/dev-mail` and listed at http://localhost:3000/dev/mail. That page answers only on this machine. Open the verification and reset links from there.
+The password for every sample account is `mihmah-demo-2026` (override it with `SEED_PASSWORD`). The server refuses to load sample data into production.
+
+- **Emails** in development go to a local outbox at http://localhost:3000/dev/mail, which only this machine can open.
+- **One-click demo logins:** copy `.env.example` to `.env` and set `DEMO_MODE=true`.
 
 ## Scripts
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Development server, plus embedded Postgres if `DATABASE_URL` is unset |
-| `npm start` | Production server (runs migrations on start unless `MIGRATE_ON_START=false`) |
-| `npm run migrate` | Apply pending migrations |
-| `npm run seed:dev` | Load fictional data into an **empty** dev or demo database |
-| `ADMIN_EMAIL=… npm run admin:create` | Create an administrator (prompts for the password) |
-| `npm test` | 46 tests against throwaway real PostgreSQL clusters |
+| `npm run dev` | Development server, plus embedded PostgreSQL when `DATABASE_URL` is unset |
+| `npm start` | Production server. Applies pending migrations on boot. |
+| `npm test` | The full test suite (47 tests) |
+| `npm run migrate` | Applies pending migrations |
+| `npm run seed:dev` | Loads fictional data into an empty development or demo database |
+| `ADMIN_EMAIL=… npm run admin:create` | Creates an administrator and prompts for the password |
 
-## What's implemented
+## Testing
 
-**Accounts and security**
-- Student and company registration, login and logout.
-- Email verification. Applying, publishing and offering need a verified email.
-- Password reset, password change, and listing and revoking sessions.
-- scrypt password hashing.
-- Server-side sessions in HttpOnly cookies, with absolute and idle expiry and revocation on logout, reset and suspension.
-- CSRF protection: an allowed Origin plus a per-session header token.
-- Restricted CORS, a strict CSP and security headers.
-- Rate limits on login, registration, password flows, applications, messages and uploads.
-- Parameterised SQL throughout.
-- Structured logs with redaction, and centralised errors with Arabic field-level messages.
+```bash
+npm test
+```
 
-**Students**
-- Profile (university, major, bio, skills, portfolio link).
-- Task search (Arabic-normalised), combined filters, sorting, pagination and saved tasks.
-- Apply and withdraw. Duplicate applications and applications to closed tasks are refused.
-- Application and offer tracking, accepting or declining offers.
-- Project workspace, portfolio, printable completion summary, notifications and email preferences.
-
-**Companies**
-- Profile and a verification request.
-- Task editor with server-side drafts, editing and publishing.
-- Applicant review with skill matching, offers (multiple allowed; the first acceptance wins), rejection and withdrawal.
-- Milestone management, deliverable review, revision requests (feedback required), approval with a rating, and cancellation rules.
-
-**Projects**
-- Database-backed conversations, refreshed live over server-sent events.
-- Private attachments: type and size checks, content sniffing, generated storage keys, short-lived links bound to the user, and upload progress with retry.
-- Deliverable rounds and an activity history.
-
-**Admin**
-- Company verification (the badge appears only after an admin verifies, with a note of what was checked).
-- Reports queue, task moderation, user suspension with a recorded reason, and dispute inspection and cancellation.
-- Audit log, and payment records with the sandbox event simulator.
-
-**Payments**
-- Compensation fields and payment records kept separate from project status.
-- A provider interface, an isolated sandbox, and live mode disabled by a schema constraint.
-- The UI says "payment integration pending". Nothing is ever marked paid because someone clicked a button.
-
-**Time**
-- Stored in UTC and shown in Asia/Amman. Deadlines mean the end of the chosen day in Amman.
-
-**Appearance**
-- Dark and light themes. The site follows the device setting by default, and visitors can switch with the sun/moon button or choose in Settings → المظهر.
-- Every text color meets WCAG AA contrast in both themes.
+Each test file starts its own temporary PostgreSQL cluster and talks to the real Express app over HTTP, with separate cookie jars acting as separate browsers. The suite covers:
+- authentication and sessions
+- role and ownership access rules
+- the full task-to-portfolio workflow
+- offer acceptance races
+- private files
+- an end-to-end journey across a backend restart
+- regression tests for the server-side bugs fixed since the MVP
 
 ## Deployment
 
 The live site runs entirely on free plans, with no credit card:
 
-| Piece | Service | Notes |
-| --- | --- | --- |
-| Server + https | Render free web service, Frankfurt | Built from the `main` branch of this GitHub repo using [render.yaml](render.yaml). Every push to `main` redeploys. |
-| Database | Neon Free PostgreSQL, Frankfurt | Direct (non-pooled) connection. Migrations run on boot. |
-| Files | Backblaze B2, private bucket, EU Central | App key limited to that one bucket |
-| Email | Brevo Free (300/day) over SMTP port 2525 | Render's free plan blocks ports 465 and 587 |
+| Piece | Service |
+| --- | --- |
+| Web server and HTTPS | Render free web service, configured in [`render.yaml`](render.yaml), redeploying on every push to `main` |
+| Database | Neon Free PostgreSQL |
+| File storage | Backblaze B2, a private bucket |
+| Email | Brevo Free over SMTP |
 
-- **Secrets** (database URL, storage keys, SMTP key) live only in Render's Environment settings, never in Git.
-- **Production checks:** the server refuses to start in production without https, SMTP, S3 storage and a file-link secret.
-- **Health:** `GET /readyz` reports `{"status":"ready","db":"ok","mail":"smtp","storage":"s3","payments":"none"}` when everything is connected.
-- **Setup, limits and troubleshooting:** step by step in [docs/DEPLOY-FREE.md](docs/DEPLOY-FREE.md).
+In production the server refuses to start without HTTPS, SMTP, object storage and a file-link secret. Secrets live only in the hosting dashboard, never in Git.
+
+- **Free setup, limits and troubleshooting:** [docs/DEPLOY-FREE.md](docs/DEPLOY-FREE.md)
+- **Configuration, backups and the go-live checklist:** [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
+
+## Security
+
+- **Accounts:** scrypt password hashing, and server-side sessions in HttpOnly, Secure cookies with absolute and idle expiry. Sessions are revoked on logout, password reset and suspension.
+- **Requests:**
+  - CSRF protection that checks the Origin and requires a per-session header token.
+  - Restricted CORS, a strict Content Security Policy, HSTS and related headers.
+  - Rate limits on sign-in, sign-up, password flows, applications, messages and uploads.
+- **Data:** parameterised SQL throughout, and role and ownership checks on every endpoint. Admin actions on user data are audited.
+- **Logs and errors:** logs are structured with secrets redacted, and error messages never expose internals.
+- **Payments:** money movement is disabled by a database constraint. Nothing is marked paid because someone clicked a button.
+
+## Project structure
+
+```text
+public/              Frontend served by Express
+  css/               Design tokens (light + dark), base, components, layout, pages
+  js/                App shell, router, API client, theme, views/*
+server/
+  app.js             Security headers, CORS, sessions, CSRF, routes, static files
+  config.js          Environment parsing; refuses unsafe production settings
+  db/                Connection pool, migration runner, migrations/*.sql, dev seed
+  lib/               Security, sessions, rate limits, validation, mail, storage, payments, SSE
+  routes/            auth, profiles, tasks, projects, inbox, admin, demo
+scripts/             Development launcher (embedded PostgreSQL), admin creation
+test/                node:test suites and regression tests
+docs/                API, state machines, deployment guides, screenshots
+render.yaml          Render Blueprint for the free deployment
+```
+
+## Status and roadmap
+
+Mihmah is a working MVP, live at [mihmah.onrender.com](https://mihmah.onrender.com). Still to come:
+
+- **Payments:** the provider interface and sandbox are built. A live adapter waits on a merchant contract with a Jordanian provider and regulatory confirmation; the research is in [PAYMENTS-RESEARCH.md](PAYMENTS-RESEARCH.md).
+- **Operations:** a custom domain, scheduled database backups, and legal pages (terms, privacy, tax guidance for student earnings).
+- **Product:** university-enrolment verification for a "verified student" badge, and an automated browser test suite.
+
+Progress is tracked in [PROGRESS.md](PROGRESS.md), and every change is listed in [CHANGELOG.md](CHANGELOG.md).
 
 ## Documentation
 
-- [docs/API.md](docs/API.md): every endpoint, its auth requirement, body and errors.
-- [docs/STATE-MACHINES.md](docs/STATE-MACHINES.md): task, application, offer, project, payment and report lifecycles.
-- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md): production configuration, environment separation, backups and restore, release steps, go-live checklist.
-- [docs/DEPLOY-FREE.md](docs/DEPLOY-FREE.md): the free Render + Neon + Backblaze + Brevo setup behind the live site, with limits and troubleshooting.
-- [CHANGELOG.md](CHANGELOG.md): what changed and why, release by release, including the QA findings and their fixes.
-- [PAYMENTS-RESEARCH.md](PAYMENTS-RESEARCH.md): Jordan payment providers, evaluated from official docs.
-- [RESEARCH.md](RESEARCH.md): UX research behind the original prototype.
-- [PROGRESS.md](PROGRESS.md): stage checklist and remaining external dependencies.
-
-## Project layout
-
-```
-public/            Frontend (index.html, css/, js/views/*) — served by Express
-server/
-  app.js           Express app: security headers, CORS, sessions, CSRF, routes, static files
-  config.js        Environment parsing; refuses unsafe production settings
-  db/              pool + transactions, migration runner, migrations/*.sql, dev seed
-  lib/             security, sessions, rate limits, validation, mailer, storage, payments, SSE, audit/notify
-  routes/          auth, profiles, tasks (+applications/offers), projects, inbox, admin, demo
-scripts/           dev launcher (embedded Postgres), create-admin
-test/              node:test suites (auth, access, workflow, concurrency, files, e2e)
-docs/              API, state machines, deployment
-```
-
-## External dependencies still needed
-
-| Dependency | Status |
+| Document | Contents |
 | --- | --- |
-| Payment provider and merchant account | Not integrated. The research recommends contacting PayTabs (Jordan) and MEPS first. CBJ licensing needs confirming. |
-| Email | Live on Brevo Free. Verification emails were delivered from the live site on 2026-10-27. A custom domain (paid) is needed for a proper sender address; without one, Brevo sends from `…brevosend.com`. |
-| File storage | Live on Backblaze B2 and connected (`/readyz` reports `s3`). A real upload and download on the live site is still to be checked. |
-| Hosting and TLS | Live on Render Free at `mihmah.onrender.com`. A custom domain is optional and not set up. |
-| Backups | Neon Free keeps only a 6-hour restore window. Scheduled `pg_dump` backups are needed before real users rely on it (see `docs/DEPLOYMENT.md`). |
-| Legal | Terms, privacy policy, and tax treatment of student earnings. |
+| [docs/API.md](docs/API.md) | Every endpoint with its auth rules, request body and errors |
+| [docs/STATE-MACHINES.md](docs/STATE-MACHINES.md) | Lifecycles of tasks, applications, offers, projects, payments and reports |
+| [docs/DEPLOY-FREE.md](docs/DEPLOY-FREE.md) | The free Render + Neon + Backblaze + Brevo setup behind the live site |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Production configuration, backups and restore, release steps, go-live checklist |
+| [PAYMENTS-RESEARCH.md](PAYMENTS-RESEARCH.md) | Payment providers in Jordan, evaluated from official documentation |
+| [RESEARCH.md](RESEARCH.md) | UX research behind the interface |
+
+---
+
+<div align="center">
+
+Built by <a href="https://github.com/yousefammmar">@yousefammmar</a>.
+
+</div>
