@@ -2,6 +2,10 @@
 
 Newest first. Each entry names its commit, so `git show <sha>` gives the full change.
 
+## 2026-10-27 — Login form centred on the live site
+
+- **Off-centre login form:** on wide screens the login page uses two columns, the form and the one-click demo-accounts panel. With demo mode off, as on the live site, that panel doesn't exist, so the form sat alone in the right-hand column. It now uses two columns only when the demo panel is shown; otherwise it's centred like the other sign-in pages.
+
 ## 2026-10-27 — Updates show up immediately
 
 - **Stale pages after a deploy:**

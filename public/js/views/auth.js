@@ -83,9 +83,11 @@ export function login({ query }) {
       else { setFormError(err, ex.message); form.password.focus(); }
     }
   });
-  return h('div', { class: 'container page auth' },
+  // Two columns only when the demo-accounts panel exists; otherwise the form is centred like the other auth pages.
+  const demo = demoPanel(next);
+  return h('div', { class: demo ? 'container page auth' : 'container page auth narrow' },
     title('تسجيل الدخول', 'ادخل إلى حسابك في مهمّة.'),
-    h('div', { class: 'auth-grid' }, h('div', { class: 'panel' }, form), demoPanel(next)));
+    h('div', { class: demo ? 'auth-grid auth-grid-demo' : 'auth-grid' }, h('div', { class: 'panel' }, form), demo));
 }
 
 export function register({ query }) {

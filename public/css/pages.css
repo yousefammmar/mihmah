@@ -273,7 +273,7 @@ button.stepper-btn:hover { background: var(--hover); color: var(--text); }
 .auth { padding-block: 40px; }
 .auth.narrow { max-width: 620px; }
 .auth-grid { display: grid; gap: 20px; grid-template-columns: minmax(0, 1fr); max-width: 980px; margin-inline: auto; }
-@media (min-width: 900px) { .auth-grid { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: start; } }
+@media (min-width: 900px) { .auth-grid-demo { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: start; } }
 .auth-links { text-align: center; font-size: 0.9rem; color: var(--text-2); }
 .auth > .note { max-width: 620px; margin: 16px auto 0; }
 .demo-panel { display: flex; flex-direction: column; gap: 12px; border-color: var(--accent-line); }
