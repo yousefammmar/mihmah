@@ -78,8 +78,8 @@ Base path: `/api`. JSON in, JSON out (UTF-8). This file lists all 78 endpoints, 
 | GET | `/auth/sessions` | user | → `{ items: [{ id, createdAt, lastSeenAt, expiresAt, userAgent, current }] }` |
 | DELETE | `/auth/sessions/:id` | user | Revokes one of your sessions. |
 | POST | `/auth/logout-others` | user | Revokes every session except the current one. |
-| POST | `/auth/verify-email` | — | `{ token }`. Single-use, valid 24 h. |
-| POST | `/auth/resend-verification` | user | Issues a new link. |
+| POST | `/auth/verify-email` | — | `{ token }`. Valid 24 h. Verifies the account and retires the user's other verification links. Reopening a link of an already-verified account returns `{ ok: true, alreadyVerified: true }`. Unknown or expired tokens → 400 `invalid_token`. |
+| POST | `/auth/resend-verification` | user | Emails an additional link (3 per hour). Earlier unexpired links keep working, because mail clients thread these emails. Password-reset links, by contrast, replace each other. |
 | POST | `/auth/forgot-password` | — | `{ email }`. Always returns the same response. Reset link valid 1 h. |
 | POST | `/auth/reset-password` | — | `{ token, password }`. Revokes all of the user's sessions. |
 | POST | `/auth/change-password` | user | `{ currentPassword, newPassword }`. Revokes your other sessions. |
@@ -103,7 +103,7 @@ Base path: `/api`. JSON in, JSON out (UTF-8). This file lists all 78 endpoints, 
 | Method | Path | Auth | Description |
 | --- | --- | --- | --- |
 | GET | `/tasks` | user | Published, visible tasks whose deadline hasn't passed. Filters: `q` (Arabic-normalised search over title, summary, company, city, skills), `category`, `skills` (comma list, any match), `budgetMin`, `budgetMax`, `durationMin`, `durationMax`, `saved=1`, `sort=newest\|budget_desc\|budget_asc\|deadline`. Each item includes `saved` and `myApplicationStatus`. |
-| GET | `/tasks/:id` | user | Detail, plus `myApplication` (with offer and project) for students, and `applicantCount`, `canEdit`, `isOwner`. Drafts are visible only to their owner. |
+| GET | `/tasks/:id` | user | Detail, plus `myApplication` (with offer and project) for students, and `applicantCount`, `canEdit`, `isOwner`. Drafts are visible only to their owner. 404 for students when the company is suspended, unless they already applied. |
 | GET | `/company/tasks?status=` | company | Your tasks with applicant, submitted, pending-offer counts and `projectId` |
 | POST | `/tasks` | company | `{ title (10–90), category, summary (30–300), scope (40–2000), deliverables[1–8], skills[1–8], milestones[1–6], budget (10–2000 JOD), durationDays (1–60), deadline: YYYY-MM-DD, publish?: bool }` → `{ id, status }`. `publish: true` requires a verified email. |
 | PATCH | `/tasks/:id` | owner company | Same body. Only while `draft`, or `published` with no applications. |
@@ -116,13 +116,13 @@ Base path: `/api`. JSON in, JSON out (UTF-8). This file lists all 78 endpoints, 
 
 | Method | Path | Auth | Description |
 | --- | --- | --- | --- |
-| POST | `/tasks/:id/applications` | student, verified | `{ proposal (50–2000), portfolioUrl?, deliveryDays (≤ task duration) }` → 201. 409 if it's a duplicate or the task is closed. |
+| POST | `/tasks/:id/applications` | student, verified | `{ proposal (50–2000), portfolioUrl?, deliveryDays (≤ task duration) }` → 201. 409 if it's a duplicate or the task is closed. A suspended company's tasks count as closed (`task_closed`). |
 | GET | `/me/applications` | student | Your applications with task, company, offer status and expiry, and `projectId` |
 | POST | `/applications/:id/withdraw` | owning student | `submitted → withdrawn` |
 | GET | `/tasks/:id/applications` | owner company | Applicants with profile summary, skills, completed-project count and offer status |
 | POST | `/applications/:id/reject` | owner company | `submitted → rejected` |
 | POST | `/applications/:id/offer` | owner company, verified | `{ message? }` → offer `{ id, status: pending, expiresAt }`. The application becomes `offered`. |
-| POST | `/offers/:id/accept` | offered student, verified | Locked transaction: offer `accepted`, task `assigned`, other offers `withdrawn`, remaining applications `rejected`, and the project, conversation, milestones and payment record are created → `{ projectId }`. 409 `task_taken` or `offer_expired`. |
+| POST | `/offers/:id/accept` | offered student, verified | Locked transaction: offer `accepted`, task `assigned`, other offers `withdrawn`, remaining applications `rejected`, and the project, conversation, milestones and payment record are created → `{ projectId }`. 409 `task_taken` or `offer_expired`, or `task_closed` if the company has been suspended since the offer. |
 | POST | `/offers/:id/decline` | offered student | `pending → declined` |
 | POST | `/offers/:id/withdraw` | owner company | `pending → withdrawn` |
 
@@ -171,7 +171,7 @@ Every mutating admin call requires a written reason or note. It is stored in `mo
 | GET | `/admin/tasks?moderation=&q=` | Non-draft tasks, those with open reports first |
 | POST | `/admin/tasks/:id/moderation` | `{ action: hide\|unhide, reason }` |
 | GET | `/admin/users?role=&status=&q=` | Users |
-| POST | `/admin/users/:id/suspend`, `/reinstate` | `{ reason }`. Suspending revokes every session immediately. Admin accounts cannot be suspended here. |
+| POST | `/admin/users/:id/suspend`, `/reinstate` | `{ reason }`. Suspending revokes every session immediately and closes a company's tasks to students (detail, apply and accepting its offers); reinstating reopens them. Admin accounts cannot be suspended here. |
 | GET | `/admin/projects?disputed=1` | Projects with open-dispute counts |
 | POST | `/admin/projects/:id/cancel` | `{ reason }`. Resolves a dispute: project and task are cancelled, and the payment is cancelled if money never moved. |
 | GET | `/admin/audit?entityId=&actorId=` | Audit log, newest first |
@@ -188,4 +188,4 @@ Every mutating admin call requires a written reason or note. It is stored in `mo
 
 | Method | Path | Description |
 | --- | --- | --- |
-| GET | `/dev/mail` | Local outbox viewer for `MAIL_PROVIDER=dev`. Never mounted when `NODE_ENV=production`. |
+| GET | `/dev/mail` | Local outbox viewer for `MAIL_PROVIDER=dev`. Never mounted when `NODE_ENV=production`, and answers only requests from this machine (loopback), because it lists live verification and reset links. |

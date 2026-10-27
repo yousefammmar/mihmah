@@ -1,6 +1,6 @@
 # Deployment, configuration and operations
 
-For a no-cost setup (Render + Neon + Backblaze B2 + Brevo, code on GitLab), follow [DEPLOY-FREE.md](DEPLOY-FREE.md).
+For a no-cost setup (Render + Neon + Backblaze B2 + Brevo, code on GitHub), follow [DEPLOY-FREE.md](DEPLOY-FREE.md).
 
 Nothing has been deployed. This guide and its checklist are for review. Deploying, spending money and touching production data all need an explicit go-ahead.
 

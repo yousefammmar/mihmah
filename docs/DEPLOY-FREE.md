@@ -1,113 +1,119 @@
-# Free deployment: Render + Neon + Backblaze B2 + Brevo (code on GitLab)
+# Free deployment: Render + Neon + Backblaze B2 + Brevo (code on GitHub)
 
-Free-tier limits were checked on **2026-10-25**. They change; re-check the linked pages before you rely on them.
-None of the five services needs a credit card for this setup.
+**Status:** live since 2026-10-27 at **https://mihmah.onrender.com**, built from the `main` branch of the GitHub repo `yousefammmar/mihmah`.
+
+Free-tier limits were checked on 2026-10-25. They change, so re-check the linked pages before you rely on them. None of these services needs a credit card for this setup.
 
 | Piece | Service | Free limits that matter | Source |
 |---|---|---|---|
-| Code | GitLab | Private repositories are free. GitLab CI is not used. | gitlab.com |
-| Server + https | Render free web service | Sleeps after **15 min** without traffic; waking takes **~1 min**. **750 instance hours**/month per workspace. **No shell, no persistent disk.** Can restart at any time. **Outbound ports 25, 465 and 587 are blocked.** | [render.com/docs/free](https://render.com/docs/free) |
-| Database | Neon Free | **1 GB** storage per project. **100 CU-hours**/month. Suspends after **5 min** idle. **5 GB** egress. **6-hour** restore window. Permanent, no card. Hitting a limit pauses the database until next month; it never deletes data. | [neon.com/pricing](https://neon.com/pricing) |
-| File storage | Backblaze B2 | **10 GB** free storage. Free egress up to 3× stored data. No card at sign-up. | [backblaze.com/cloud-storage/pricing](https://www.backblaze.com/cloud-storage/pricing) |
-| Email | Brevo Free | **300 emails/day**. SMTP relay included. No card. Without your own domain, Brevo rewrites the sender to `…@…brevosend.com`. | [brevo.com/free-smtp-server](https://www.brevo.com/free-smtp-server/), [help.brevo.com](https://help.brevo.com/hc/en-us/articles/14925263522578) |
+| Code | GitHub | Public or private repo; Render deploys either | github.com |
+| Server + https | Render free web service | Sleeps after **15 min** without traffic; waking takes **~1 min**. **750 instance hours**/month. **No shell, no persistent disk.** Can restart at any time. **Outbound ports 25, 465 and 587 are blocked.** | [render.com/docs/free](https://render.com/docs/free) |
+| Database | Neon Free | **1 GB** storage. **100 CU-hours**/month. Suspends after **5 min** idle. **5 GB** egress. **6-hour** restore window. Hitting a limit pauses the database until next month; it never deletes data. | [neon.com/pricing](https://neon.com/pricing) |
+| File storage | Backblaze B2 | **10 GB** free storage. Free egress up to 3× stored data. | [backblaze.com/cloud-storage/pricing](https://www.backblaze.com/cloud-storage/pricing) |
+| Email | Brevo Free | **300 emails/day** over SMTP. Phone verification is required before anything is sent. Without your own domain, Brevo sends from `…@…brevosend.com`. | [brevo.com/free-smtp-server](https://www.brevo.com/free-smtp-server/), [help.brevo.com](https://help.brevo.com/hc/en-us/articles/14925263522578) |
 
-Why not Render's own database: free Render Postgres is **deleted 30 days after creation**. Neon's free plan does not expire.
+Why not some alternatives:
+- **Render's own database:** free Render Postgres is deleted 30 days after creation.
+- **Firebase:** server code and file storage both need its paid Blaze plan.
 
-The production server refuses to start unless it has an https `APP_URL`, PostgreSQL, S3-compatible storage, SMTP and a file-link secret (`server/config.js`). This stack supplies each one. Payments stay off (`PAYMENTS_PROVIDER=none`) and demo logins stay off (`DEMO_MODE=false`).
+The production server refuses to start unless it has an https `APP_URL`, PostgreSQL, S3-compatible storage, SMTP and a file-link secret (`server/config.js`). Payments stay off (`PAYMENTS_PROVIDER=none`) and demo logins stay off (`DEMO_MODE=false`).
 
-Pick nearby regions so requests don't cross continents: Render **Frankfurt**, Neon **AWS Europe Central 1 (Frankfurt)**, B2 **EU Central**.
+Use nearby regions: Render **Frankfurt**, Neon **AWS Europe Central 1 (Frankfurt)**, B2 **EU Central**.
 
-Write each value down as you go. Every name in `CAPITALS` below is entered in Render in step 5. Treat them like passwords: don't commit them, screenshot them or paste them into chats.
+> **Keep secrets out of chats, screenshots, issues and Git.** Paste each one only into Render's Environment page. Every name in `CAPITALS` below is a Render setting. If a secret was ever shown somewhere else, rotate it (see "Rotating a secret" below).
 
 ---
 
 ## 1. Neon (database)
 
-1. Sign up at [neon.com](https://neon.com).
+1. Sign up at [neon.com](https://neon.com). "Continue with GitHub" works.
 2. Create a project:
    - Name: `mihmah`
    - Postgres version: 17
    - Region: **AWS Europe Central 1 (Frankfurt)**
-3. Open **Branches → main → Computes → Edit**. Set the autoscaling **maximum to 0.25 CU**. The 100 CU-hours then last about 400 awake hours a month instead of burning faster at larger sizes.
+   - Neon names the default branch **production**.
+3. **Limit the compute size,** so the 100 CU-hours last about 400 awake hours a month:
+   - Open **Postgres database → Computes → Edit**.
+   - Set the range to **0.25 – 0.25 CU**, then Save.
 4. Click **Connect**:
-   - Turn **Connection pooling OFF**. The app's migrations hold a session lock that the pooler breaks.
-   - Copy the connection string.
-   - At the end, replace `sslmode=require&channel_binding=require` with `sslmode=verify-full`. The security is the same and it avoids a warning in the logs.
-   - This value is **`DATABASE_URL`**.
+   - Turn **Connection pooling OFF**. The host must not contain `-pooler`, because the app's migrations hold a session lock that the pooler breaks.
+   - Click **show password** and copy the string. This is **`DATABASE_URL`**.
+   - The ending `?sslmode=require&channel_binding=require` works as it is. Changing it to `?sslmode=verify-full` only silences a warning in the logs.
 
 ## 2. Backblaze B2 (uploaded files)
 
 1. Sign up at [backblaze.com](https://www.backblaze.com/sign-up/cloud-storage) and choose region **EU Central**.
 2. **Buckets → Create a Bucket**:
-   - Name: something unique, such as `mihmah-files-7k2p`. This is **`S3_BUCKET`**.
+   - Name: something unique, such as `mihmah-files`. This is **`S3_BUCKET`**.
    - Files in bucket: **Private**
    - Default encryption: **Enable**
    - Object Lock: off
-3. On the bucket card, copy **Endpoint**, for example `s3.eu-central-003.backblazeb2.com`.
+3. The bucket card shows **Endpoint**, for example `s3.eu-central-003.backblazeb2.com`.
    - **`S3_ENDPOINT`** is `https://` plus that endpoint.
    - **`S3_REGION`** is the middle part, for example `eu-central-003`.
 4. **Application Keys → Add a New Application Key**:
    - Name: `mihmah-render`
-   - Allow access to: **only this bucket**
+   - Access: **only this bucket**
    - Type: **Read and Write**
-   - Copy **keyID** as **`S3_ACCESS_KEY_ID`**.
-   - Copy **applicationKey** as **`S3_SECRET_ACCESS_KEY`**. It is shown only once.
+   - **keyID** (`003…`) is **`S3_ACCESS_KEY_ID`**.
+   - **applicationKey** (`K003…`) is **`S3_SECRET_ACCESS_KEY`**. It is **shown only once**. If you lose it, delete the key and create a new one.
 
-No CORS setup is needed. Uploads go through the server, and downloads are ordinary links.
+No CORS rules are needed. Uploads go through the server, and downloads are ordinary links.
 
 ## 3. Brevo (verification and password-reset email)
 
-1. Sign up at [brevo.com](https://www.brevo.com).
-2. **Senders, Domains & Dedicated IPs → Senders → Add a sender**. Use the name `Mihmah` and an address you can read, then confirm it from your inbox.
-   - Brevo doesn't allow free addresses (Gmail, Yahoo, iCloud) as the visible sender, so it shows mail as coming from `…@…brevosend.com`. Mail still goes out.
-   - A proper sender needs your own domain (paid, roughly $10/year) authenticated in Brevo (Brevo code, DKIM, DMARC). That's optional and can be done later.
-3. **SMTP & API → SMTP → Generate a new SMTP key**:
-   - The **Login** shown on that page (like `9a1b2c001@smtp-brevo.com`) is **`SMTP_USER`**.
-   - The key is **`SMTP_PASS`**.
-   - These are not your Brevo account email or password, and not an API key.
-4. **`MAIL_FROM`** is `Mihmah <the address you confirmed in step 2>`.
+1. Sign up at [brevo.com](https://www.brevo.com). The onboarding asks for:
+   - an organization name (`Mihmah`)
+   - a website (`https://mihmah.onrender.com`)
+   - a **real** postal address. Anti-spam rules require it, and a fake one can get the account suspended.
 
-`render.yaml` already sets `SMTP_HOST=smtp-relay.brevo.com` and **`SMTP_PORT=2525`**. Render's free tier blocks 465 and 587; Brevo documents 2525 as an alternative.
+   Then pick the **Free** plan.
+2. **Verify your phone** when Brevo asks (the banner on the Home page). Nothing is sent until you do.
+3. **Settings ⚙ → Senders, domains, IPs → Senders → Add a sender:**
+   - Name `Mihmah`, with an address you can read. Confirm it with the code Brevo emails you.
+   - With a free address (Gmail etc.), Brevo shows DKIM/DMARC warnings and sends from `…brevosend.com`. Mail still arrives. Your own domain, authenticated in Brevo, fixes this later.
+4. **Settings ⚙ → SMTP & API → SMTP:**
+   - The **Login** shown is **`SMTP_USER`**.
+   - Ignore the port it shows (587). `render.yaml` uses **2525**, which Brevo also accepts.
+   - Don't turn on **"Activate for SMTP keys"** (blocking unauthorized IPs). Render's free servers have no fixed address, so it would block the site.
+   - Click **Generate SMTP key**: name `mihmah-render`, variant **Standard**, the longest expiry offered. The key (`xsmtpsib-…`) is **`SMTP_PASS`**.
+   - SMTP keys also expire after **90 days with no email sent**.
+5. **`MAIL_FROM`** is `Mihmah <the address you confirmed>`.
 
-## 4. GitLab (code)
+## 4. GitHub (code)
 
-1. Sign up at [gitlab.com](https://gitlab.com).
-2. **New project → Create blank project**:
-   - Name: `mihmah`
-   - Visibility: **Private**
-   - **Untick** "Initialize repository with a README"
-3. Give this Mac push access: either add your SSH key under **Preferences → SSH Keys**, or create a personal access token with the `write_repository` scope.
-4. Push the deploy branch as `main`:
+The repo is `yousefammmar/mihmah`, and Render deploys its `main` branch. A private repo hides the source and commit history. Render deploys private repos too, once you grant it access.
 
-   ```bash
-   git remote add gitlab git@gitlab.com:<your-username>/mihmah.git
-   ```
-
-   ```bash
-   git push gitlab claude/mihmah-frontend-prototype-c3c9b5:main
-   ```
+```bash
+git push origin main
+```
 
 ## 5. Render (the server)
 
-1. Sign up at [render.com](https://render.com) with **Sign in with GitLab**, which connects your repos. If you already have an account, use **Account Settings → Git Deployment Credentials → GitLab**.
-2. **New → Blueprint** and pick the `mihmah` GitLab repo. Render reads `render.yaml` and asks for each secret:
-   - `APP_URL`
-   - `DATABASE_URL`
-   - `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM`
-   - `S3_ENDPOINT`, `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`
-3. For **`APP_URL`**, enter `https://mihmah.onrender.com`. If Render gives the service a different address (the name is taken), set `APP_URL` in the service's **Environment** tab to the exact URL shown and redeploy. Email links and the cross-site request check both depend on it matching.
-4. Click **Apply**. The first boot creates the database tables. Render generates `FILE_URL_SECRET` itself.
-5. Open `https://<your-app>.onrender.com/readyz`. You should see:
+1. Sign up at [render.com](https://render.com) with **Sign in with GitHub**, and allow access to the repo.
+2. Click **+ New → Blueprint** and pick the repo. Render reads `render.yaml` and creates the **mihmah** web service.
+   - Don't use **New Web Service**, which ignores `render.yaml`, or **New Postgres** (deleted after 30 days).
+3. Render asks for the 10 secret values. **Any you leave blank are not created,** and the deploy then fails with `Invalid configuration`. To add them later:
+   - Open **mihmah** (the web service) → **Environment** → **Edit** → **+ Add Environment Variable**.
+   - Don't use **Environment Groups**: a group does nothing until it's linked to the service.
+
+   | Key | From |
+   |---|---|
+   | `APP_URL` | `https://mihmah.onrender.com` (exactly the URL Render shows for the service) |
+   | `DATABASE_URL` | Neon, step 1 |
+   | `S3_BUCKET`, `S3_ENDPOINT`, `S3_REGION`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` | Backblaze, step 2 |
+   | `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | Brevo, step 3 |
+
+4. Click **Save, rebuild, and deploy**. The first boot creates the database tables.
+5. Open `https://mihmah.onrender.com/readyz`. You should see:
 
    ```json
    {"status":"ready","db":"ok","mail":"smtp","storage":"s3","payments":"none"}
    ```
 
-   If the service fails to start, the **Logs** tab names the missing or invalid setting.
-
 ## 6. First admin account (run on your Mac)
 
-Render's free plan has no shell, so the admin is created from your computer against Neon. Run this in your own terminal from the project folder. The first command reads the database URL without echoing it or saving it to shell history:
+Render's free plan has no shell, so the admin is created from your computer against Neon. Run these from the project folder. The first command reads the URL without echoing it or saving it to shell history:
 
 ```bash
 read -rs DATABASE_URL && export DATABASE_URL
@@ -121,23 +127,41 @@ ADMIN_EMAIL=you@example.com npm run admin:create
 unset DATABASE_URL
 ```
 
-The script asks for a password of 12+ characters. Admins can never sign up through the website.
+The script asks for a password of 12+ characters. Use an email that isn't already registered, because the script refuses to change existing accounts. Admins can never sign up through the website.
 
 ## 7. Check it end to end
 
-- [ ] Register a student with a real inbox. The verification email arrives (check spam) and its link opens the live site.
-- [ ] "Forgot password" sends an email and the reset works.
-- [ ] A company account verifies its email and publishes a task. The admin verifies the company.
-- [ ] Upload a file in a project and download it. **Check the downloaded file keeps its original name.** B2 support for the forced-filename download setting is unconfirmed.
-- [ ] `https://<your-app>.onrender.com/dev/mail` returns 404, and the login page shows no demo buttons.
+- [x] `/readyz` ready, http → https redirect, security headers, `/dev/mail` and demo login 404 (checked 2026-10-27)
+- [x] A verification email arrives from the live site (Brevo over port 2525, checked 2026-10-27)
+- [ ] Opening the verification link verifies the account (fixed in `8394626`; re-check after that deploy)
+- [ ] "Forgot password" sends an email and the reset works
+- [ ] A company verifies its email and publishes a task. The admin verifies the company.
+- [ ] Upload a file in a project and download it, and **check it keeps its original name**. B2 support for the forced-filename parameter is unconfirmed.
 
-## Living with the free limits
+---
 
-- **Cold starts.** The first visit after 15 quiet minutes waits about a minute.
-  - Don't add an uptime pinger to keep it awake. While the server is awake it queries the database every minute (offer expiry), so a pinger also keeps Neon awake and burns its 100 CU-hours.
+## Day to day
+
+- **Ship a change:** push to `main`. Render rebuilds and redeploys by itself, in about 2–5 minutes.
+- **See what's happening:** Render → **mihmah → Logs** for the server, and **Events** for deploy history.
+- **Change a setting:** **mihmah → Environment → Edit**, change the value, then **Save, rebuild, and deploy**.
+- **Rotating a secret:** create a new credential, put it in Render, redeploy, then delete the old one:
+  - **Neon:** Postgres database → Roles → neondb_owner → Reset password. Rebuild `DATABASE_URL` with the new password.
+  - **Backblaze:** delete the app key, add a new one with the same scope, and update both `S3_ACCESS_KEY_*` values.
+  - **Brevo:** SMTP & API → delete the key, generate a new one, and update `SMTP_PASS`.
+- **Watch the free limits:**
+  - Check Neon **Usage** weekly at first.
+  - Don't add an uptime pinger. While the server is awake it queries the database every minute (offer expiry), so a pinger keeps Neon awake and burns its compute hours.
   - Accepting an offer checks expiry itself, so sleeping never lets an expired offer through.
-- **Neon usage.** Check **Usage** weekly for the first month. If CU-hours run out, the database pauses until the next month; no data is lost.
-- **Restarts.** Render can restart the service at any time. Nothing is lost, because data lives in Neon and files in B2.
-- **Backups.** Neon Free only keeps a 6-hour restore window. Once real users sign up, take regular `pg_dump` backups (see [DEPLOYMENT.md](DEPLOYMENT.md#backups-and-restore)).
-- **Email cap.** 300 emails a day across verification, password resets and notifications.
-- **Moving off free.** Upgrading Render removes sleeping and allows standard SMTP ports. Upgrading Neon raises compute and restore limits. Neither needs a code change.
+- **Backups:** Neon Free keeps only 6 hours of history. Schedule `pg_dump` (see [DEPLOYMENT.md](DEPLOYMENT.md#backups-and-restore)) before real users depend on the site.
+
+## Troubleshooting
+
+| What you see | Cause | Fix |
+|---|---|---|
+| "Not Found", with header `x-render-routing: no-server` | No Render service exists at that address | Create the Blueprint (step 5) |
+| 502, or a long hang, with `x-render-routing: no-deploy` | The service exists but no deploy has succeeded | Open **Logs**. Usually some settings are missing. |
+| `Invalid configuration: - DATABASE_URL is required …` in Logs | A secret wasn't created on the service | Add it under **mihmah → Environment** (not an Environment Group), then redeploy |
+| No verification email | Phone not verified in Brevo, sender not confirmed, wrong `SMTP_USER`/`SMTP_PASS`, or an expired SMTP key | Check Brevo, then look for `mail.failed` in Logs. Generate a new key if needed. |
+| "الرابط غير صالح أو انتهت صلاحيته" on a verification link | Before `8394626`, a resend cancelled earlier links and a second click failed | Fixed. Older emails sent before that deploy may still fail, so request one new link. |
+| First visit takes about a minute | The free server was asleep | Expected on the free plan |
