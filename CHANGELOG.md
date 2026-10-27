@@ -2,6 +2,13 @@
 
 Newest first. Each entry names its commit, so `git show <sha>` gives the full change.
 
+## 2026-10-27 — Dropdowns in light mode on phones
+
+- **City field and other dropdowns:** the arrow was an image with a fixed dark-theme grey (`#B9BEC6`). On the light field (`#E6E9ED`) it measured about 1.4:1 and was nearly invisible. It's now a theme token: `#434A54` in light (7.35:1), unchanged in dark (8.94:1).
+- **The open list:** options had forced background and text colors. Phones draw the open list natively, and some apply the forced text color but not the background, which can leave dark text on a dark list or light on light. The override is removed, so the native list follows the page's `color-scheme`: light on light pages, dark on dark.
+- **Date pickers:** the calendar icon was inverted for dark mode, which made it pale in light mode. It's no longer inverted in light mode.
+- **Sticky headers on iPhone:** added `-webkit-backdrop-filter`, so they blur the content behind them on iOS Safari before version 18.
+
 ## 2026-10-27 — Google Analytics, without leaking tokens
 
 - **Google Analytics 4** (`G-LV24FGSHJJ`), added in a privacy-safe way:

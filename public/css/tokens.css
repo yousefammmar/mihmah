@@ -74,6 +74,8 @@
   --grad-avatar: linear-gradient(150deg, #383B41, #2A2D31);
   --ghost-ink: rgba(255, 255, 255, 0.06);
   --on-danger: #2A1414;
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B9BEC6' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  --picker-icon-filter: invert(0.8);
 
   --font: "Tajawal", "IBM Plex Sans Arabic", "Noto Sans Arabic", "Segoe UI", "Geeza Pro", Tahoma, system-ui, sans-serif;
   --font-latin: "Tajawal", "Segoe UI", system-ui, sans-serif;
@@ -153,4 +155,6 @@
   --grad-avatar: linear-gradient(150deg, #FFFFFF, #E6E9ED);
   --ghost-ink: rgba(22, 27, 34, 0.07);
   --on-danger: #FFFFFF;
+  --select-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23434A54' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  --picker-icon-filter: none;
 }
