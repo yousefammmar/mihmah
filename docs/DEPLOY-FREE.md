@@ -165,3 +165,4 @@ The script asks for a password of 12+ characters. Use an email that isn't alread
 | No verification email | Phone not verified in Brevo, sender not confirmed, wrong `SMTP_USER`/`SMTP_PASS`, or an expired SMTP key | Check Brevo, then look for `mail.failed` in Logs. Generate a new key if needed. |
 | "الرابط غير صالح أو انتهت صلاحيته" on a verification link | Before `8394626`, a resend cancelled earlier links and a second click failed | Fixed. Older emails sent before that deploy may still fail, so request one new link. |
 | First visit takes about a minute | The free server was asleep | Expected on the free plan |
+| A new feature doesn't appear after a deploy | Before the cache fix, browsers kept files for up to an hour | Fixed. Browsers now check for updates on every visit. If a browser cached the old files before that fix deployed, press Cmd+Shift+R (Ctrl+Shift+R on Windows) once. |

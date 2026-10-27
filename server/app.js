@@ -113,7 +113,9 @@ export function createApp(ctx) {
     });
   }
 
-  app.use(express.static(PUBLIC_DIR, { index: 'index.html', maxAge: config.isProd ? '1h' : 0 }));
+  // File names are not versioned, so browsers must revalidate on every load (a cheap 304 via ETag when unchanged).
+  // Caching them for a while showed stale pages after deploys and could mix old and new ES modules.
+  app.use(express.static(PUBLIC_DIR, { index: 'index.html', maxAge: 0 }));
   app.use(errorHandler(log));
   return app;
 }

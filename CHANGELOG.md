@@ -2,6 +2,14 @@
 
 Newest first. Each entry names its commit, so `git show <sha>` gives the full change.
 
+## 2026-10-27 — Updates show up immediately
+
+- **Stale pages after a deploy:**
+  - Static files were sent with `Cache-Control: max-age=3600`, so browsers that had visited in the last hour kept showing the old site. The new theme button was missing on the live site until a hard refresh.
+  - Worse, a browser could mix cached and new ES modules and fail to load the page.
+  - Files are now sent with `max-age=0` and an ETag. Browsers check for a newer version on every load, and an unchanged file costs a tiny 304 reply.
+  - Test: `test/app.regression-2.test.js`.
+
 ## 2026-10-27 — Light mode, more skills, sign-up fixes
 
 - **Light mode:**
