@@ -2,6 +2,10 @@
 
 Newest first. Each entry names its commit, so `git show <sha>` gives the full change.
 
+## 2026-10-27 — Fewer specialist academies in the university list
+
+- **University suggestions:** down from 42 to 39. The cooking, aviation and music academies are no longer suggested (الأكاديمية الملكية لفنون الطهي، كلية سلاح الجو الملكي لعلوم الطيران، الأكاديمية الأردنية للموسيقى). Students there can still type the name.
+
 ## 2026-10-27 — More design, tools and front-end skills; no Excel
 
 - **Skill suggestions (students and task forms):** up from 65 to 107, each in one group only.

@@ -9,7 +9,8 @@ export const CATEGORIES = [
 export const categoryOf = (id) => CATEGORIES.find((c) => c.id === id) || CATEGORIES[0];
 
 // Accredited universities and university colleges in Jordan (Ministry of Higher Education categories), checked on
-// 2026-10-27 against the Arabic Wikipedia list and an accreditation directory. Suggestions only: students can type any name.
+// 2026-10-27 against the Arabic Wikipedia list and an accreditation directory. Specialist cooking, aviation and music
+// academies are left out. Suggestions only: students can type any name.
 export const UNIVERSITIES = [
   // Public universities (10)
   'الجامعة الأردنية', 'جامعة العلوم والتكنولوجيا الأردنية', 'جامعة اليرموك', 'الجامعة الهاشمية',
@@ -25,8 +26,7 @@ export const UNIVERSITIES = [
   // University colleges
   'كلية لومينوس الجامعية التقنية', 'كلية الخوارزمي الجامعية التقنية', 'كلية عمون الجامعية التطبيقية',
   'الكلية الجامعية العربية للتكنولوجيا', 'الكلية الجامعية الوطنية للتكنولوجيا', 'كلية طلال أبو غزالة الجامعية للابتكار',
-  'كلية العلوم التربوية والآداب (الأونروا)', 'كلية سلاح الجو الملكي لعلوم الطيران', 'الأكاديمية الملكية لفنون الطهي',
-  'الأكاديمية الأردنية للموسيقى',
+  'كلية العلوم التربوية والآداب (الأونروا)',
 ];
 
 export const CITIES = ['عمّان', 'إربد', 'الزرقاء', 'السلط', 'العقبة', 'مادبا', 'الكرك', 'جرش', 'المفرق', 'عجلون', 'معان', 'الطفيلة'];

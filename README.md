@@ -47,7 +47,7 @@ Small businesses need small digital jobs done: a menu redesign, a landing page, 
 ## Features
 
 **Students**
-- Profile with university (all 42 in Jordan suggested), major, bio, skills (107 grouped suggestions) and a portfolio link.
+- Profile with university (39 Jordanian universities and colleges suggested), major, bio, skills (107 grouped suggestions) and a portfolio link.
 - Task discovery with Arabic-normalised search, combined filters, sorting, pagination and saved tasks.
 - Applications, offers and project tracking, with notifications in the app and by email.
 - Portfolio and a printable completion summary for every finished project.
