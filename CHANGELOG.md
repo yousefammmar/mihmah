@@ -2,6 +2,13 @@
 
 Newest first. Each entry names its commit, so `git show <sha>` gives the full change.
 
+## 2026-10-28 — Every university in Jordan
+
+- **University suggestions on student profiles:** up from 10 to 42 entries.
+  - All 10 public, 18 private, 2 special-law and 1 regional university, plus the University of Jordan's Aqaba branch and the accredited university colleges.
+  - Names follow their official Arabic forms, checked against the Arabic Wikipedia list and an accreditation directory.
+  - The original 10 keep their exact spelling, so existing profiles still match. Students can still type any name.
+
 ## 2026-10-27 — Dropdowns in light mode on phones
 
 - **City field and other dropdowns:** the arrow was an image with a fixed dark-theme grey (`#B9BEC6`). On the light field (`#E6E9ED`) it measured about 1.4:1 and was nearly invisible. It's now a theme token: `#434A54` in light (7.35:1), unchanged in dark (8.94:1).
