@@ -35,7 +35,9 @@ export default function authRoutes(ctx) {
 
   async function issueEmailToken(client, userId, purpose, ttlMs) {
     const token = randomToken(32);
-    await client.query("update email_tokens set used_at = now() where user_id = $1 and purpose = $2 and used_at is null", [userId, purpose]);
+    // A new reset link cancels older ones. Older verification links stay valid until they expire:
+    // mail clients thread the emails, so the one a user opens after a resend is often an earlier one.
+    if (purpose !== 'verify_email') await client.query("update email_tokens set used_at = now() where user_id = $1 and purpose = $2 and used_at is null", [userId, purpose]);
     await client.query('insert into email_tokens (user_id, purpose, token_hash, expires_at) values ($1, $2, $3, $4)', [userId, purpose, sha256(token), new Date(Date.now() + ttlMs)]);
     return token;
   }
@@ -133,12 +135,26 @@ export default function authRoutes(ctx) {
   }));
 
   r.post('/verify-email', limiter.limit('verify', 20, HOUR, ipKey), asyncRoute(async (req, res) => {
-    const userId = await db.tx(async (client) => {
-      const id = await consumeToken(client, req.body?.token, 'verify_email');
-      await client.query('update users set email_verified_at = coalesce(email_verified_at, now()), updated_at = now() where id = $1', [id]);
-      await audit(client, { actorId: id, action: 'user.email_verified', entityType: 'user', entityId: id });
-      return id;
-    });
+    let userId;
+    try {
+      userId = await db.tx(async (client) => {
+        const id = await consumeToken(client, req.body?.token, 'verify_email');
+        await client.query('update users set email_verified_at = coalesce(email_verified_at, now()), updated_at = now() where id = $1', [id]);
+        await client.query("update email_tokens set used_at = now() where user_id = $1 and purpose = 'verify_email' and used_at is null", [id]);
+        await audit(client, { actorId: id, action: 'user.email_verified', entityType: 'user', entityId: id });
+        return id;
+      });
+    } catch (err) {
+      // A second click, a link scanner or another of the user's emails can reopen a link after the
+      // account is verified: report that state instead of an error. Unknown tokens still fail.
+      if (err.code !== 'invalid_token') throw err;
+      const verified = await db.one(
+        `select 1 from email_tokens t join users u on u.id = t.user_id
+          where t.token_hash = $1 and t.purpose = 'verify_email' and u.email_verified_at is not null`,
+        [sha256(String(req.body?.token || ''))]);
+      if (!verified) throw err;
+      return res.json({ ok: true, alreadyVerified: true });
+    }
     res.json({ ok: true, userId });
   }));
 

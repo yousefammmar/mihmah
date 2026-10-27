@@ -80,15 +80,18 @@ test('CSRF: signed-in writes need the per-session token and an allowed Origin', 
   assert.equal(ok.data.messages, true);
 });
 
-test('email verification token is single-use; unverified users cannot apply', async () => {
+test('email verification: reusing a link only reports the verified state; unknown tokens fail', async () => {
   const email = uniqueEmail('verify');
   const c = s.client();
   await c.post('/api/auth/register', { role: 'student', email, password: PASSWORD, name: 'سارة' });
   const token = await s.tokenFor(email);
   assert.equal((await c.post('/api/auth/verify-email', { token })).status, 200);
   const again = await c.post('/api/auth/verify-email', { token });
-  assert.equal(again.status, 400);
-  assert.equal(again.data.error.code, 'invalid_token');
+  assert.equal(again.status, 200);
+  assert.equal(again.data.alreadyVerified, true);
+  const unknown = await c.post('/api/auth/verify-email', { token: token + 'x' });
+  assert.equal(unknown.status, 400);
+  assert.equal(unknown.data.error.code, 'invalid_token');
   assert.equal((await c.get('/api/auth/session')).data.user.emailVerified, true);
 });
 
