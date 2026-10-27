@@ -175,8 +175,11 @@
   background-image: var(--select-arrow);
   background-repeat: no-repeat; background-size: 18px; background-position: left 14px center;
 }
-/* No colors on <option>: phones draw the open list natively, and some honor a forced text color but not the
-   background. color-scheme on :root (tokens.css) makes the native list match the theme instead. */
+/* The open list is drawn by the phone, often in the phone's own light/dark theme, and some browsers ignore the
+   option background but keep its text color. So the list follows the device theme, not the site theme: system
+   colors (Canvas/CanvasText) under color-scheme "light dark" give dark-on-light or light-on-dark, always readable. */
+.select { color-scheme: light dark; }
+.select option { color: CanvasText; background-color: Canvas; }
 input[type="date"]::-webkit-calendar-picker-indicator { filter: var(--picker-icon-filter); cursor: pointer; }
 input[type="number"] { font-family: var(--font-latin); }
 

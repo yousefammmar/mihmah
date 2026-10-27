@@ -5,7 +5,7 @@ Newest first. Each entry names its commit, so `git show <sha>` gives the full ch
 ## 2026-10-27 — Dropdowns in light mode on phones
 
 - **City field and other dropdowns:** the arrow was an image with a fixed dark-theme grey (`#B9BEC6`). On the light field (`#E6E9ED`) it measured about 1.4:1 and was nearly invisible. It's now a theme token: `#434A54` in light (7.35:1), unchanged in dark (8.94:1).
-- **The open list:** options had forced background and text colors. Phones draw the open list natively, and some apply the forced text color but not the background, which can leave dark text on a dark list or light on light. The override is removed, so the native list follows the page's `color-scheme`: light on light pages, dark on dark.
+- **The open list:** with the phone in dark mode and the site in light mode, choosing a city showed dark text on a dark list, unreadable. Android draws the open list in the phone's own theme and ignores the option background, but it keeps the text color the site sets, which was dark for the light theme. The list now follows the device theme instead: `color-scheme: light dark` on the dropdown, with `Canvas`/`CanvasText` system colors on the options. The result is white text on a dark list or black on a light one in all four phone/site combinations (checked by emulating each), while the closed field keeps the site theme.
 - **Date pickers:** the calendar icon was inverted for dark mode, which made it pale in light mode. It's no longer inverted in light mode.
 - **Sticky headers on iPhone:** added `-webkit-backdrop-filter`, so they blur the content behind them on iOS Safari before version 18.
 
