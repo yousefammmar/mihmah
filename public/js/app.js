@@ -112,6 +112,7 @@ async function render({ soft = false } = {}) {
   mount(path, m, view);
   const title = app.querySelector('[data-page-title]');
   document.title = title && path !== '/' ? `${title.textContent} | مهمّة` : 'مهمّة | Mihmah — خبرتك تبدأ بمهمّة';
+  if (isNew) window.mihmahTrackPage?.(); // analytics.js; soft refreshes are not new page views
   if (isNew) {
     window.scrollTo(0, 0);
     if (lastPath !== null) title?.focus({ preventScroll: true });

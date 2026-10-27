@@ -153,6 +153,7 @@ The script asks for a password of 12+ characters. Use an email that isn't alread
   - Check Neon **Usage** weekly at first.
   - Don't add an uptime pinger. While the server is awake it queries the database every minute (offer expiry), so a pinger keeps Neon awake and burns its compute hours.
   - Accepting an offer checks expiry itself, so sleeping never lets an expired offer through.
+- **Analytics:** Google Analytics 4 (`G-LV24FGSHJJ`) is configured in `public/js/analytics.js`. In Google Analytics, open **Admin → Data streams → (your web stream) → Enhanced measurement**, then turn off **"Page changes based on browser history events"**. The app sends its own clean page views, so leaving that option on counts every page twice.
 - **Backups:** Neon Free keeps only 6 hours of history. Schedule `pg_dump` (see [DEPLOYMENT.md](DEPLOYMENT.md#backups-and-restore)) before real users depend on the site.
 
 ## Troubleshooting

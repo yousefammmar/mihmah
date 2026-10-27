@@ -149,15 +149,24 @@ export function register({ query }) {
     devMailNote());
 }
 
+// Removes ?token=… from the address once read, so it isn't kept in history or seen by analytics.
+const dropTokenFromUrl = (route) => history.replaceState(history.state, '', `${location.pathname}${location.search}#${route}`);
+
+let lastVerify = null; // a re-render after the token was removed from the address shows the same result
 export async function verifyEmail({ query }) {
   const token = query.get('token');
   let state;
-  try {
-    if (!token) throw new Error('الرابط ناقص.');
-    await api.post('/auth/verify-email', { token });
-    if (session.user) applySession(await api.get('/auth/session'));
-    state = { ok: true };
-  } catch (err) { state = { ok: false, message: err.message }; }
+  if (!token && lastVerify) state = lastVerify;
+  else {
+    try {
+      if (!token) throw new Error('الرابط ناقص.');
+      dropTokenFromUrl('/verify-email');
+      await api.post('/auth/verify-email', { token });
+      if (session.user) applySession(await api.get('/auth/session'));
+      state = { ok: true };
+    } catch (err) { state = { ok: false, message: err.message }; }
+    lastVerify = state;
+  }
   return h('div', { class: 'container page auth narrow' },
     title(state.ok ? 'تم تأكيد بريدك الإلكتروني' : 'تعذّر تأكيد البريد'),
     h('div', { class: 'panel stack-sm' },
@@ -193,8 +202,11 @@ export function forgotPassword() {
     h('div', { class: 'panel' }, form, done), devMailNote());
 }
 
+let resetToken = '';
 export function resetPassword({ query }) {
-  const token = query.get('token') || '';
+  const token = query.get('token') || resetToken;
+  resetToken = token;
+  if (query.get('token')) dropTokenFromUrl('/reset-password');
   const err = formError();
   const submit = h('button', { type: 'submit', class: 'btn btn-primary btn-lg btn-block' }, 'حفظ كلمة المرور الجديدة');
   const form = h('form', { class: 'stack', novalidate: true },

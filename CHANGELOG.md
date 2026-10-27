@@ -2,6 +2,15 @@
 
 Newest first. Each entry names its commit, so `git show <sha>` gives the full change.
 
+## 2026-10-27 — Google Analytics, without leaking tokens
+
+- **Google Analytics 4** (`G-LV24FGSHJJ`), added in a privacy-safe way:
+  - It loads from `public/js/analytics.js`, a site file, so the Content Security Policy still bans inline code. The policy allows only Google's analytics domains.
+  - Page views are sent by the app on each navigation, with route-only addresses (`/tasks/:id`). Query strings in the hash, which can carry one-time verify and reset tokens, are dropped, and record IDs become `:id`.
+  - Analytics is off on `localhost`, so development traffic stays out of the reports.
+- **Tokens leave the address bar as soon as they're read** on the verify-email and reset-password pages. Browser history, screenshots and analytics' automatic events never see them.
+- Verified in the browser: Google received only `/reset-password` and `/login` page views, the test token appeared in no request, and there were no CSP errors.
+
 ## 2026-10-27 — Login form centred on the live site
 
 - **Off-centre login form:** on wide screens the login page uses two columns, the form and the one-click demo-accounts panel. With demo mode off, as on the live site, that panel doesn't exist, so the form sat alone in the right-hand column. It now uses two columns only when the demo panel is shown; otherwise it's centred like the other sign-in pages.

@@ -67,6 +67,7 @@ Small businesses need small digital jobs done: a menu redesign, a landing page, 
 - Light and dark themes. They follow the device setting and switch with one click. Every light-theme text color meets WCAG AA contrast (4.5:1).
 - Responsive, mobile-first Arabic RTL interface built from a token-based design system.
 - Times stored in UTC and shown in Asia/Amman. Deadlines mean the end of the chosen day in Amman.
+- Privacy-conscious Google Analytics. Page views carry route names only, never one-time tokens or record IDs, and analytics is off during local development.
 
 ## Tech stack
 
